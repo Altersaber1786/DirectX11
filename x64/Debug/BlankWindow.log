@@ -1,0 +1,5 @@
+﻿  Game.cpp
+e:\documents\visual studio 2013\projects\blankwindow\blankwindow\game.cpp(53): warning C4305: '+=': truncation from 'double' to 'float'
+e:\documents\visual studio 2013\projects\blankwindow\blankwindow\game.cpp(54): warning C4305: '+=': truncation from 'double' to 'float'
+  BlankWindow.vcxproj -> E:\Documents\Visual Studio 2013\Projects\BlankWindow\x64\Debug\BlankWindow.exe
+  BlankWindow.vcxproj -> E:\Documents\Visual Studio 2013\Projects\BlankWindow\x64\Debug\BlankWindow.pdb (Partial PDB)
