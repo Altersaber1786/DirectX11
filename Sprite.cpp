@@ -235,7 +235,7 @@ bool Sprite::LoadGeometry(DirectDevice* device, LPCWSTR fxFile, const wchar_t* t
 		return false;
 	}
 
-	//Constant buffers to store matricies
+	//Constant buffers description
 	D3D11_BUFFER_DESC constDesc;
 	ZeroMemory(&constDesc, sizeof(constDesc));
 	constDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -266,7 +266,6 @@ void Sprite::Render(DirectDevice* device)
 	unsigned int stride = sizeof(VertexPos);
 	unsigned int offset = 0;
 
-	//Set things appropriately to prepare the pipeline functions.
 	// For input Assembler
 	device->d3dContext_->IASetInputLayout(inputLayout_);
 	device->d3dContext_->IASetVertexBuffers(0, 1, &vertexBuffer_, &stride, &offset);
