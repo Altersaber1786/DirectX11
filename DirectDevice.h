@@ -24,6 +24,7 @@ public:
 	void getWindowSize(HWND hwnd);
 	ID3D11Device*			d3dDevice_;
 	ID3D11DeviceContext*	d3dContext_;
+
 	
 	unsigned int			windowWidth;
 	unsigned int			windowHeight;
@@ -32,10 +33,13 @@ private:
 	ID3D11RenderTargetView*	renderTargetView_;
 	IDXGISwapChain*			swapChain_;
 
-	D3D_DRIVER_TYPE driverType_;
-	D3D_FEATURE_LEVEL featureLevel_;
+	D3D_DRIVER_TYPE			driverType_;
+	D3D_FEATURE_LEVEL		featureLevel_;
+	
+	XMMATRIX				projMatrix_;
+	ID3D11Buffer*			projCB_; //Project constant buffer
+	//Depth Stenci
 
-	//Depth Stencil
 	ID3D11Texture2D* depthTexture_;
 	ID3D11DepthStencilView* depthStencilView_;
 

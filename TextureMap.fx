@@ -10,17 +10,17 @@ Texture2D psResource : register( t0 );
 SamplerState samplerState_ : register( s0 );
 
 
-cbuffer cbChangesEveryFrame : register( b0 )
+cbuffer cbChangesEveryFrame : register( b0 ) //Handle by Object model
 {
     matrix worldMatrix;
 };
 
-cbuffer cbChangeOnMove : register( b1 )
+cbuffer cbChangeOnCamAction : register( b1 ) //Handle by Camera
 {
     matrix viewMatrix;
 };
 
-cbuffer cbChangeOnResize : register( b2 )
+cbuffer cbChangeOnResize : register( b2 ) //Handle by Direct device
 {
     matrix projMatrix;
 };

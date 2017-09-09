@@ -32,7 +32,7 @@ bool Game::Initialize(HWND hwnd)
 	{
 		return false;
 	};
-	//Test github
+	
 	cam_1 = new Camera();
 	if (!cam_1->Initialize(m_device))
 	{

@@ -242,13 +242,6 @@ bool Sprite::LoadGeometry(DirectDevice* device, LPCWSTR fxFile, const wchar_t* t
 	constDesc.ByteWidth = sizeof(XMMATRIX);
 	constDesc.Usage = D3D11_USAGE_DEFAULT;
 
-	//projection matrix
-	d3dResult = device->d3dDevice_->CreateBuffer(&constDesc, 0, &projCB_);
-
-	if (FAILED(d3dResult))
-	{
-		return false;
-	}
 	//world matrix
 	d3dResult = device->d3dDevice_->CreateBuffer(&constDesc, 0, &worldCB_);
 
@@ -257,9 +250,6 @@ bool Sprite::LoadGeometry(DirectDevice* device, LPCWSTR fxFile, const wchar_t* t
 		return false;
 	}
 
-	viewMatrix_ = XMMatrixIdentity();
-	viewMatrix_ = XMMatrixTranspose(viewMatrix_);
-
 	return true;
 }
 
@@ -267,18 +257,14 @@ void Sprite::Update()
 {
 	worldMat_ = GetWorldMatrix();
 	worldMat_ = XMMatrixTranspose(worldMat_);
-	
 }
 
 void Sprite::Render(DirectDevice* device)
 {
-	float AspectRatio = static_cast<float>(device->windowWidth) / static_cast<float>(device->windowHeight);
-	projMatrix_ = XMMatrixPerspectiveFovLH(XM_PI / 4.0f, AspectRatio, 0.1f, 100.0f);
-	projMatrix_ = XMMatrixTranspose(projMatrix_);
+	
 	
 	unsigned int stride = sizeof(VertexPos);
 	unsigned int offset = 0;
-
 
 	//Set things appropriately to prepare the pipeline functions.
 	// For input Assembler
@@ -295,11 +281,8 @@ void Sprite::Render(DirectDevice* device)
 
 	//Update sub resources
 	device->d3dContext_->UpdateSubresource(worldCB_, 0, 0, &worldMat_, 0, 0);
-	device->d3dContext_->UpdateSubresource(projCB_, 0, 0, &projMatrix_, 0, 0);
-
+	
 	device->d3dContext_->VSSetConstantBuffers(0, 1, &worldCB_);
-	device->d3dContext_->VSSetConstantBuffers(2, 1, &projCB_);
-
 	device->d3dContext_->DrawIndexed(36, 0, 0);
 	
 	return;
@@ -315,7 +298,7 @@ void Sprite::Relase()
 	if (vertexBuffer_)			vertexBuffer_->			Release();
 	if (indexBuffer_)			indexBuffer_->			Release();
 	if (worldCB_)				worldCB_->				Release();
-	if (projCB_)				projCB_->				Release();
+	
 };
 
 Sprite::~Sprite()

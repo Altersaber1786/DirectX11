@@ -72,7 +72,24 @@ unsigned int creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 	}
 
 	createViewsDependWindowSize();
-	
+	//Constant project buffer
+	D3D11_BUFFER_DESC constDesc;
+	ZeroMemory(&constDesc, sizeof(constDesc));
+	constDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	constDesc.ByteWidth = sizeof(XMMATRIX);
+	constDesc.Usage = D3D11_USAGE_DEFAULT;
+
+	if (FAILED(d3dDevice_->CreateBuffer(&constDesc, 0, &projCB_)))
+	{
+		return false;
+	}
+
+	float AspectRatio = static_cast<float>(windowWidth) / static_cast<float>(windowHeight);
+	projMatrix_ = XMMatrixPerspectiveFovLH(XM_PI / 4.0f, AspectRatio, 0.1f, 100.0f);
+	projMatrix_ = XMMatrixTranspose(projMatrix_);
+	d3dContext_->UpdateSubresource(projCB_, 0, 0, &projMatrix_, 0, 0);
+	d3dContext_->VSSetConstantBuffers(2, 1, &projCB_);
+
 	return true;
 }
 bool DirectDevice::createViewsDependWindowSize()
@@ -205,7 +222,15 @@ void DirectDevice::swapChainSetNewSize(HWND hwnd)
 	{
 		Message("Failed to resize the buffer");
 	};
+
 	createViewsDependWindowSize();
+
+	float AspectRatio = static_cast<float>(windowWidth) / static_cast<float>(windowHeight);
+	projMatrix_ = XMMatrixPerspectiveFovLH(XM_PI / 4.0f, AspectRatio, 0.1f, 100.0f);
+	projMatrix_ = XMMatrixTranspose(projMatrix_);
+	d3dContext_->UpdateSubresource(projCB_, 0, 0, &projMatrix_, 0, 0);
+	d3dContext_->VSSetConstantBuffers(2, 1, &projCB_);
+
 };
 
 void DirectDevice::Clear()
@@ -216,6 +241,7 @@ void DirectDevice::Clear()
 	float clearColor[4] = { 0.5f, 1.0f, 1.0f, 1.0f };
 	d3dContext_->ClearRenderTargetView(renderTargetView_, clearColor);
 	d3dContext_->ClearDepthStencilView(depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	
 }
 
 void DirectDevice::Present()
@@ -239,5 +265,6 @@ void DirectDevice::Relase()
 	if (d3dDevice_)			d3dDevice_->Release();
 	if (swapChain_)			swapChain_->Release();
 	if (renderTargetView_)	renderTargetView_->Release();
+	if (projCB_)			projCB_->Release();
 	return;
 };

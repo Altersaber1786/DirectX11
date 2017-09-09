@@ -16,7 +16,7 @@ bool Camera::Initialize(DirectDevice* device)
 	constDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	constDesc.ByteWidth = sizeof(XMMATRIX);
 	constDesc.Usage = D3D11_USAGE_DEFAULT;
-	//view matrix
+	//constant buffer to store view matrix
 	
 	if (FAILED(device->d3dDevice_->CreateBuffer(&constDesc, 0, &viewCB_)))
 	{

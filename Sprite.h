@@ -33,8 +33,7 @@ public:
 	bool moving;
 private:
 
-	XMMATRIX	viewMatrix_;
-	XMMATRIX	projMatrix_;
+
 	XMMATRIX	worldMat_;
 
 //Shaders
@@ -48,7 +47,7 @@ private:
 	ID3D11Buffer*				vertexBuffer_;
 	ID3D11Buffer*				indexBuffer_;
 //Buffers to store constant matrices
-	ID3D11Buffer*				projCB_;
+
 	ID3D11Buffer*				worldCB_;
 
 
