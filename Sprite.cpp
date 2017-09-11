@@ -5,13 +5,13 @@ Sprite::Sprite() :rotation_(0.0f, 0.0f, 0.0f), scale_(1.0f, 1.0f, 1.0f), positio
 { 
 }
 
-bool Sprite::Initialize(XMFLOAT3 Position, XMFLOAT3 Rotation, XMFLOAT3 Scale, DirectDevice* device, LPCWSTR fxFile, const wchar_t* texFile)
+bool Sprite::Initialize(XMFLOAT3 Position, XMFLOAT3 Rotation, XMFLOAT3 Scale, DirectDevice* device, LPCWSTR fxFile, const wchar_t* texFile, char* meshFile)
 {
 	if (device == NULL) return false;
 	SetPosition(Position);
 	SetRotation(Rotation);
 	SetScale(Scale);
-	if (!LoadGeometry(device, fxFile, texFile))
+	if (!LoadGeometry(device, fxFile, texFile, meshFile))
 	{
 		return false;
 	};
@@ -42,7 +42,7 @@ XMMATRIX Sprite::GetWorldMatrix()
 	return	rotation*scale*translation;
 };
 
-bool Sprite::LoadGeometry(DirectDevice* device, LPCWSTR fxFile, const wchar_t* texFile)
+bool Sprite::LoadGeometry(DirectDevice* device, LPCWSTR fxFile, const wchar_t* texFile, char* meshFile)
 {
 	// vsBuffer, use to store compiled vertex shader byte code
 	ID3DBlob* vsBuffer = nullptr; 
@@ -75,7 +75,8 @@ bool Sprite::LoadGeometry(DirectDevice* device, LPCWSTR fxFile, const wchar_t* t
 	D3D11_INPUT_ELEMENT_DESC inputDescription[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 
 	unsigned int totalElements = ARRAYSIZE(inputDescription);
@@ -114,87 +115,15 @@ bool Sprite::LoadGeometry(DirectDevice* device, LPCWSTR fxFile, const wchar_t* t
 		return false;
 	}
 
-	//Vertices of our sprite
-	VertexPos vertices[] =
-	{
-		{ XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT2(0.0f, 0.0f) },
-		{ XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT2(1.0f, 0.0f) },
-		{ XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT2(1.0f, 1.0f) },
-		{ XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT2(0.0f, 1.0f) },
-
-		{ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT2(0.0f, 0.0f) },
-		{ XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT2(1.0f, 0.0f) },
-		{ XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT2(1.0f, 1.0f) },
-		{ XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT2(0.0f, 1.0f) },
-
-		{ XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT2(0.0f, 0.0f) },
-		{ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT2(1.0f, 0.0f) },
-		{ XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT2(1.0f, 1.0f) },
-		{ XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT2(0.0f, 1.0f) },
-
-		{ XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT2(0.0f, 0.0f) },
-		{ XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT2(1.0f, 0.0f) },
-		{ XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT2(1.0f, 1.0f) },
-		{ XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT2(0.0f, 1.0f) },
-
-		{ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT2(0.0f, 0.0f) },
-		{ XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT2(1.0f, 0.0f) },
-		{ XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT2(1.0f, 1.0f) },
-		{ XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT2(0.0f, 1.0f) },
-
-		{ XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT2(0.0f, 0.0f) },
-		{ XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT2(1.0f, 0.0f) },
-		{ XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT2(1.0f, 1.0f) },
-		{ XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT2(0.0f, 1.0f) },
-	};
 	
-	//vertexBuffer description
-	D3D11_BUFFER_DESC vertexDesc;
-	ZeroMemory(&vertexDesc, sizeof(vertexDesc));
-	vertexDesc.Usage = D3D11_USAGE_DEFAULT;
-	vertexDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertexDesc.ByteWidth = sizeof(vertices);
-
-	D3D11_SUBRESOURCE_DATA resourceData;
-	ZeroMemory(&resourceData, sizeof(resourceData));
-	resourceData.pSysMem = vertices;
-
-	//Create vertex buffer with our verticies stored.
-	d3dResult = device->d3dDevice_->CreateBuffer(&vertexDesc, &resourceData, &vertexBuffer_);
-
-	if (FAILED(d3dResult))
+	//Load Vertex buffer
+	m_Loader = new MeshLoader();
+	if (!(m_Loader->LoadMeshFromOBJ(meshFile, device, &vertexBuffer_)))
 	{
-		MessageBox(NULL, "Failed to create the vertex buffer!", NULL, NULL);
+		MessageBox(NULL, "Error creating vertex buffer", NULL, NULL);
 		return false;
 	}
-
-	//Index buffer
-	WORD indices[] =
-	{
-		3, 1, 0, 2, 1, 3,
-		6, 4, 5, 7, 4, 6,
-		11, 9, 8, 10, 9, 11,
-		14, 12, 13, 15, 12, 14,
-		19, 17, 16, 18, 17, 19,
-		22, 20, 21, 23, 20, 22
-	};
-
-	D3D11_BUFFER_DESC indexDesc;
-	ZeroMemory(&indexDesc, sizeof(indexDesc));
-	indexDesc.Usage = D3D11_USAGE_DEFAULT;
-	indexDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	indexDesc.ByteWidth = sizeof(indices);
-	indexDesc.CPUAccessFlags = 0;
-	resourceData.pSysMem = indices;
-
-	d3dResult = device->d3dDevice_->CreateBuffer(&indexDesc, &resourceData, &indexBuffer_);
-
-	if (FAILED(d3dResult))
-	{
-		MessageBox(NULL, "Failed to create the index buffer", NULL, NULL);
-		return false;
-	}
-
+	m_totalVertex = m_Loader->GetTotalVertices();
 	//Create the view to look at shader's resource
 	//In this section we set image load info = null, thread pump = null
 	d3dResult = CreateDDSTextureFromFile(device->d3dDevice_, texFile, NULL, &shaderResourceView_);
@@ -263,13 +192,12 @@ void Sprite::Render(DirectDevice* device)
 {
 	
 	
-	unsigned int stride = sizeof(VertexPos);
+	unsigned int stride = sizeof(MeshLoader::Vertex);
 	unsigned int offset = 0;
 
 	// For input Assembler
 	device->d3dContext_->IASetInputLayout(inputLayout_);
 	device->d3dContext_->IASetVertexBuffers(0, 1, &vertexBuffer_, &stride, &offset);
-	device->d3dContext_->IASetIndexBuffer(indexBuffer_, DXGI_FORMAT_R16_UINT, 0);
 	device->d3dContext_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	//Vertex shader
 	device->d3dContext_->VSSetShader(vertexShader_, 0, 0);
@@ -282,7 +210,7 @@ void Sprite::Render(DirectDevice* device)
 	device->d3dContext_->UpdateSubresource(worldCB_, 0, 0, &worldMat_, 0, 0);
 	
 	device->d3dContext_->VSSetConstantBuffers(0, 1, &worldCB_);
-	device->d3dContext_->DrawIndexed(36, 0, 0);
+	device->d3dContext_->Draw(m_totalVertex, 0);
 	
 	return;
 }
@@ -295,7 +223,6 @@ void Sprite::Relase()
 	if (shaderResourceView_)	shaderResourceView_->	Release();
 	if (samplerState_)			samplerState_->			Release();
 	if (vertexBuffer_)			vertexBuffer_->			Release();
-	if (indexBuffer_)			indexBuffer_->			Release();
 	if (worldCB_)				worldCB_->				Release();
 	
 };

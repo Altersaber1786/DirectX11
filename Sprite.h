@@ -3,7 +3,7 @@
 
 #include "DirectDevice.h"
 #include "DDSTextureLoader.h"
-
+#include "MeshLoader.h"
 class Sprite
 {
 public:
@@ -15,27 +15,24 @@ public:
 
 	Sprite();
 	~Sprite();
-	struct VertexPos
-	{
-		XMFLOAT3 pos;
-		XMFLOAT2 tex0;
-	};
+	
 	const XMFLOAT3 up = {0.0f, 1.0f, 0.0f};
-	bool		Initialize(XMFLOAT3 Position, XMFLOAT3 Rotation, XMFLOAT3 Scale, DirectDevice *device, LPCWSTR fxFile, const wchar_t* texFile);
+	bool		Initialize(XMFLOAT3 Position, XMFLOAT3 Rotation, XMFLOAT3 Scale, DirectDevice *device, LPCWSTR fxFile, const wchar_t* texFile, char* meshFile);
 	void		SetPosition(XMFLOAT3 position);
 	void		SetRotation(XMFLOAT3 rotation);
 	void		SetScale(XMFLOAT3 scale);
-	bool		LoadGeometry(DirectDevice* device, LPCWSTR fxFile, const wchar_t* texFile);
+	bool		LoadGeometry(DirectDevice* device, LPCWSTR fxFile, const wchar_t* texFile, char* meshFile);
 	void		Update();
 	void		Render(DirectDevice* device);
 	void		Relase();
 	XMMATRIX	GetWorldMatrix();
 	bool moving;
 private:
+	int m_totalVertex;
 
+	MeshLoader*	m_Loader;
 
 	XMMATRIX	worldMat_;
-
 //Shaders
 	ID3D11PixelShader*			pixelShader_;
 	ID3D11VertexShader*			vertexShader_;
@@ -45,7 +42,7 @@ private:
 	
 //Buffers to store vertices
 	ID3D11Buffer*				vertexBuffer_;
-	ID3D11Buffer*				indexBuffer_;
+
 //Buffers to store constant matrices
 
 	ID3D11Buffer*				worldCB_;

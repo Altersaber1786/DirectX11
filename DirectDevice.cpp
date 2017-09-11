@@ -238,7 +238,7 @@ void DirectDevice::Clear()
 
 	if (d3dContext_ == 0)
 		return;
-	float clearColor[4] = { 0.5f, 1.0f, 1.0f, 1.0f };
+	float clearColor[4] = { 0.2f, 0.2f, 0.2f, 1.0f };
 	d3dContext_->ClearRenderTargetView(renderTargetView_, clearColor);
 	d3dContext_->ClearDepthStencilView(depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 	

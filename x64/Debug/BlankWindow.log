@@ -1,6 +1,4 @@
-﻿  Sprite.cpp
-  DirectDevice.cpp
-  Generating Code...
+﻿  DirectDevice.cpp
 e:\documents\visual studio 2013\projects\blankwindow\blankwindow\directdevice.cpp(170): warning C4715: 'DirectDevice::createViewsDependWindowSize': not all control paths return a value
   BlankWindow.vcxproj -> E:\Documents\Visual Studio 2013\Projects\BlankWindow\x64\Debug\BlankWindow.exe
   BlankWindow.vcxproj -> E:\Documents\Visual Studio 2013\Projects\BlankWindow\x64\Debug\BlankWindow.pdb (Partial PDB)

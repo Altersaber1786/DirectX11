@@ -28,8 +28,9 @@ cbuffer cbChangeOnResize : register( b2 ) //Handle by Direct device
 
 struct VS_Input
 {
-    float4 pos  : POSITION;
+    float4 pos  : POSITION0;
     float2 tex0 : TEXCOORD0;
+	float4 norm : NORMAL0;
 };
 
 struct PS_Input
