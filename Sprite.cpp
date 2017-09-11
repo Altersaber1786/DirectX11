@@ -117,13 +117,16 @@ bool Sprite::LoadGeometry(DirectDevice* device, LPCWSTR fxFile, const wchar_t* t
 
 	
 	//Load Vertex buffer
-	m_Loader = new MeshLoader();
+	MeshLoader* m_Loader = new MeshLoader();
 	if (!(m_Loader->LoadMeshFromOBJ(meshFile, device, &vertexBuffer_)))
 	{
 		MessageBox(NULL, "Error creating vertex buffer", NULL, NULL);
 		return false;
 	}
 	m_totalVertex = m_Loader->GetTotalVertices();
+
+	delete m_Loader;
+
 	//Create the view to look at shader's resource
 	//In this section we set image load info = null, thread pump = null
 	d3dResult = CreateDDSTextureFromFile(device->d3dDevice_, texFile, NULL, &shaderResourceView_);

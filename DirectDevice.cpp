@@ -248,10 +248,12 @@ void DirectDevice::Present()
 {
 	swapChain_->Present(0, 0);
 }
+
 DirectDevice::~DirectDevice()
 {
 	this->Relase();
 }
+
 void DirectDevice::Message(LPCSTR x) 
 {
 	MessageBox(NULL, x, "Error", NULL);

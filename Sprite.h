@@ -30,7 +30,6 @@ public:
 private:
 	int m_totalVertex;
 
-	MeshLoader*	m_Loader;
 
 	XMMATRIX	worldMat_;
 //Shaders

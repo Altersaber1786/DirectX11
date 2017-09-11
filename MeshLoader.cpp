@@ -5,6 +5,7 @@
 #include <sstream>
 MeshLoader::MeshLoader()
 {
+	totalVetices = 0;
 }
 
 bool inline isFloat(char* myString)
