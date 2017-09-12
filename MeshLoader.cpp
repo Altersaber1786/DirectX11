@@ -17,7 +17,7 @@ bool inline isFloat(char* myString)
 	return iss.eof() && !iss.fail();
 }
 
-float getFloat(char* buffer, int& startIndex, int& endIndex)
+float MeshLoader::getFloat(char* buffer, int& startIndex, int& endIndex)
 {
 	
 	int count = endIndex - startIndex + 1;
@@ -204,7 +204,7 @@ bool MeshLoader::LoadMeshFromOBJ(char* filename, DirectDevice* device, ID3D11Buf
 	memset(buffer, '\0', fileSize);
 
 	fileStream.read(buffer, fileSize);
-
+	fileStream.close();
 	while (endIndex < fileSize)
 	{
 		
@@ -279,7 +279,7 @@ bool MeshLoader::LoadMeshFromOBJ(char* filename, DirectDevice* device, ID3D11Buf
 
 
 	//Adding final vertices to an array
-	int numFaces = faces.size();
+	int numFaces = static_cast<int>(faces.size());
 	totalVetices = numFaces * 3;
 	Vertex* m_vertices = new Vertex[totalVetices];
 	int k = 0;
@@ -314,7 +314,7 @@ bool MeshLoader::LoadMeshFromOBJ(char* filename, DirectDevice* device, ID3D11Buf
 	}
 
 	delete m_vertices;
-
+	delete buffer;
 
 	return true;
 }

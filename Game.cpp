@@ -41,8 +41,7 @@ bool Game::LoadContent()
 
 void Game::Update()
 {
-	obj_1->rotation_.x += 0.001;
-	obj_1->rotation_.y += 0.001;
+
 	obj_1->Update();
 	cam_1->Update(m_device);
 }
