@@ -69,12 +69,24 @@ MeshLoader::Indices getIndices(char* buffer, int& startIndex, int& endIndex)
 	{
 		index.vertexId = index.vertexId*10 + temp[i] - '0';
 		i++;
+		if (i == count)
+		{
+			if (index.textureId == 0) index.textureId = 1;
+			if (index.normalId == 0) index.normalId = 1;
+			return index;
+		}
 	}
 	i++;
 	while (temp[i] != '/')
 	{
 		index.textureId = index.textureId * 10 + temp[i] - '0';
 		i++;
+		if (i == count)
+		{
+			if (index.textureId == 0) index.textureId = 1;
+			if (index.normalId == 0) index.normalId = 1;
+			return index;
+		}
 	}
 	i++;
 	while (i < count)
@@ -82,7 +94,8 @@ MeshLoader::Indices getIndices(char* buffer, int& startIndex, int& endIndex)
 		index.normalId = index.normalId * 10 + temp[i] - '0';
 		i++;
 	}
-	
+	if (index.textureId == 0) index.textureId = 1;
+	if (index.normalId == 0) index.normalId = 1;
 	return index;
 }
 
@@ -281,6 +294,10 @@ bool MeshLoader::LoadMeshFromOBJ(char* filename, DirectDevice* device, ID3D11Buf
 	//Adding final vertices to an array
 	int numFaces = static_cast<int>(faces.size());
 	totalVetices = numFaces * 3;
+
+	if (texcoords.size() == 0) texcoords.push_back(XMFLOAT2(0.0f, 0.0f));
+	if (normals.size() == 0)normals.push_back(XMFLOAT3(0.0f, 0.0f, 0.0f));
+
 	Vertex* m_vertices = new Vertex[totalVetices];
 	int k = 0;
 	for (int i = 0; i < numFaces; i++)
