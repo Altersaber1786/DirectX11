@@ -39,6 +39,8 @@ void Camera::Update(DirectDevice* device)
 	cameraView_ = XMMatrixTranspose(cameraView_);
 	device->d3dContext_->UpdateSubresource(viewCB_, 0, 0, &cameraView_, 0, 0);
 	device->d3dContext_->VSSetConstantBuffers(1, 1, &viewCB_);
+
+
 }
 
 Camera::~Camera()

@@ -30,6 +30,14 @@ public:
 	unsigned int			windowHeight;
 
 private:
+	
+	struct HemiColor 
+	{
+		XMFLOAT4	AmbientDown = { 0.2f, 0.2f, 0.2f, 0.0f };
+		XMFLOAT4	AmbientRange = { 0.0f, 0.3f, 0.3f, 0.0f };
+	};
+	
+	HemiColor				hemiColor_;
 	ID3D11RenderTargetView*	renderTargetView_;
 	IDXGISwapChain*			swapChain_;
 
@@ -38,10 +46,13 @@ private:
 	
 	XMMATRIX				projMatrix_;
 	ID3D11Buffer*			projCB_; //Project constant buffer
+	ID3D11Buffer*			constHemispheric_;
+
 	//Depth Stenci
 
 	ID3D11Texture2D* depthTexture_;
 	ID3D11DepthStencilView* depthStencilView_;
+
 
 };
 

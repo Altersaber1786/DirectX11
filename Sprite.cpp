@@ -129,12 +129,16 @@ bool Sprite::LoadGeometry(DirectDevice* device, LPCWSTR fxFile, const wchar_t* t
 
 	//Create the view to look at shader's resource
 	//In this section we set image load info = null, thread pump = null
-	d3dResult = CreateDDSTextureFromFile(device->d3dDevice_, texFile, NULL, &shaderResourceView_);
+
+
+	ID3D11Texture2D* tex2D;
+	d3dResult = CreateDDSTextureFromFile(device->d3dDevice_, texFile, (ID3D11Resource**)&tex2D, NULL);
+	
 
 	if (FAILED(d3dResult))
 	{
 		char extension[4] = {};
-		char* pref = "texconv.exe texconv -f R8G8B8A8_UNORM ";
+		char* pref = "texconv.exe texconv -f R8G8B8A8_UNORM_SRGB ";
 		char suff[32];
 		unsigned long long num;
 		wcstombs_s(&num, suff, 32, texFile, 512);
@@ -142,13 +146,26 @@ bool Sprite::LoadGeometry(DirectDevice* device, LPCWSTR fxFile, const wchar_t* t
 		strcat(command, pref);
 		strcat(command, suff);
 		system(command);
-		if (FAILED(CreateDDSTextureFromFile(device->d3dDevice_, texFile, NULL, &shaderResourceView_)))
+		if (FAILED(CreateDDSTextureFromFile(device->d3dDevice_, texFile, (ID3D11Resource**)&tex2D, NULL)))
 		{
 			MessageBox(NULL, "Failed to load resource file, make sure the file extension is .DDS", NULL, NULL);
 			return false;
 		}
 	}
 
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	ZeroMemory(&srvDesc, sizeof(srvDesc));
+	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = -1;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+
+	if (FAILED(device->d3dDevice_->CreateShaderResourceView(tex2D, &srvDesc, &shaderResourceView_)))
+	{
+		MessageBox(NULL, "Failed to create shader Resouce view", NULL, NULL);
+		return false;
+	};
 	//Discribe and create Sampler state;
 	D3D11_SAMPLER_DESC stateDescription;
 	ZeroMemory(&stateDescription, sizeof(stateDescription));
@@ -182,6 +199,7 @@ bool Sprite::LoadGeometry(DirectDevice* device, LPCWSTR fxFile, const wchar_t* t
 		return false;
 	}
 
+
 	return true;
 }
 
@@ -211,8 +229,8 @@ void Sprite::Render(DirectDevice* device)
 
 	//Update sub resources
 	device->d3dContext_->UpdateSubresource(worldCB_, 0, 0, &worldMat_, 0, 0);
-	
 	device->d3dContext_->VSSetConstantBuffers(0, 1, &worldCB_);
+
 	device->d3dContext_->Draw(m_totalVertex, 0);
 	
 	return;

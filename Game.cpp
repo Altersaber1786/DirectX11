@@ -18,7 +18,7 @@ bool Game::Initialize(HWND hwnd)
 		XMFLOAT3(-5.0f, 1.0f, 16.0f),
 		XMFLOAT3(0.0f, 1.0f, 1.0f),
 		XMFLOAT3(1.0f, 1.0f, 1.0f),
-		m_device, (LPCWSTR)L"TextureMap.fx", L"Renge.DDS", "Sphere.obj"))
+		m_device, (LPCWSTR)L"TextureMap.fx", L"Rengeg.DDS", "sphere.obj"))
 	{
 		return false;
 	};

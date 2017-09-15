@@ -46,11 +46,9 @@ bool DirectDevice::Initialize(HWND hwnd, bool windowed)
 	 D3D_FEATURE_LEVEL_10_1, 
 	 D3D_FEATURE_LEVEL_10_0,
 	};	
+
 unsigned int creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 
-#if defined (_DEBUG) 
-	//creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
-#endif
 	
 	if (FAILED(D3D11CreateDeviceAndSwapChain(
 		NULL,
@@ -89,6 +87,22 @@ unsigned int creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 	projMatrix_ = XMMatrixTranspose(projMatrix_);
 	d3dContext_->UpdateSubresource(projCB_, 0, 0, &projMatrix_, 0, 0);
 	d3dContext_->VSSetConstantBuffers(2, 1, &projCB_);
+	
+
+	ZeroMemory(&constDesc, sizeof(constDesc));
+	constDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	constDesc.ByteWidth = sizeof(XMFLOAT4)*2;
+	constDesc.Usage = D3D11_USAGE_DEFAULT;
+	//constDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+	if (FAILED(d3dDevice_->CreateBuffer(&constDesc, 0, &constHemispheric_)))
+	{
+		return false;
+	}
+	d3dContext_->UpdateSubresource(constHemispheric_, 0, 0, &hemiColor_, 0, 0);
+	d3dContext_->PSSetConstantBuffers(0, 1, &constHemispheric_);
+	
+	
 
 	return true;
 }
@@ -105,7 +119,13 @@ bool DirectDevice::createViewsDependWindowSize()
 
 	// Create Render Target View
 	// Render target is now represented by swapchain's first buffer
-	HRESULT result = d3dDevice_->CreateRenderTargetView(BackBuffer, NULL, &renderTargetView_);
+	D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
+	ZeroMemory(&rtvDesc, sizeof(rtvDesc));
+	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+
+
+	HRESULT result = d3dDevice_->CreateRenderTargetView(BackBuffer, &rtvDesc, &renderTargetView_);
 	if (BackBuffer)
 		BackBuffer->Release();
 	if (FAILED(result))
@@ -167,6 +187,7 @@ bool DirectDevice::createViewsDependWindowSize()
 
 	d3dContext_->RSSetViewports(1, &viewport);
 
+	return true;
 }
 bool DirectDevice::CompileD3DShader(LPCWSTR filePath, LPCSTR entry, LPCSTR shaderModel, ID3DBlob** buffer)
 {
