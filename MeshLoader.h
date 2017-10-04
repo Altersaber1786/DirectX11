@@ -47,6 +47,7 @@ public:
 	bool LoadMeshFromOBJ(char* filename, DirectDevice* device, ID3D11Buffer** vertexBuffer);
 	int getToken(char* buffer, int& startIndex, int& endIndex);
 	float getFloat(char* buffer, int& startIndex, int& endIndex);
+
 private:
 	int totalVetices;
 };

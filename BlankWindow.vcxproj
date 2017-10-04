@@ -140,18 +140,26 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DirectDevice.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameMaterial.cpp" />
+    <ClCompile Include="GameModel.cpp" />
     <ClCompile Include="GameTime.cpp" />
+    <ClCompile Include="GraphicRenderer.cpp" />
+    <ClCompile Include="LightShader.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MeshLoader.cpp" />
-    <ClCompile Include="Sprite.cpp" />
+    <ClCompile Include="GameObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="DirectDevice.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="GameMaterial.h" />
+    <ClInclude Include="GameModel.h" />
     <ClInclude Include="GameTime.h" />
+    <ClInclude Include="GraphicRenderer.h" />
+    <ClInclude Include="LightShader.h" />
     <ClInclude Include="MeshLoader.h" />
-    <ClInclude Include="Sprite.h" />
+    <ClInclude Include="GameObject.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DirectXTK-master\DirectXTK_Desktop_2017_Win10.vcxproj">

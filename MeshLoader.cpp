@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+
 MeshLoader::MeshLoader()
 {
 	totalVetices = 0;

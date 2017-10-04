@@ -4,6 +4,7 @@ LRESULT CALLBACK WndProc(HWND, UINT , WPARAM, LPARAM);
 HWND hwnd;
 HINSTANCE hInstance;
 static bool shouldResize = false;
+
 bool RegisterWindowClass()
 {
 	//Register the window class
@@ -32,7 +33,7 @@ bool RegisterWindowClass()
 		NULL,
 		hInstance,
 		NULL);
-	
+	return true;
 }
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR cmdLine, int cmdShow)
 {	
@@ -70,7 +71,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR cmdLine
 
 		if (shouldResize)
 		{
-			game->m_device->swapChainSetNewSize(hwnd);
+			game->m_Graphic->SetBuffersNewSize();
 			shouldResize = false;
 		}
 		game->Update();

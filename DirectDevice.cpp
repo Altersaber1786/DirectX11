@@ -8,7 +8,6 @@ DirectDevice::DirectDevice()
 	d3dDevice_ = NULL;
 	d3dContext_ = NULL;
 	swapChain_ = NULL;
-	renderTargetView_ = NULL;
 	windowWidth = 0;
 	windowHeight = 0;
 }
@@ -18,8 +17,8 @@ bool DirectDevice::Initialize(HWND hwnd, bool windowed)
 	//Describe and Create Swapchain & Direct3D device
 	
 	//Get Window size for Swapchain.Buffer description
-	getWindowSize(hwnd);
-
+	handleWindow = hwnd;
+	getWindowSize();
 
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	SecureZeroMemory(&swapChainDesc, sizeof(DXGI_SWAP_CHAIN_DESC));
@@ -68,207 +67,17 @@ unsigned int creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 		Message("Failed to create the Direct3D device!");
 		return false;
 	}
-
-	createViewsDependWindowSize();
-	//Constant project buffer
-	D3D11_BUFFER_DESC constDesc;
-	ZeroMemory(&constDesc, sizeof(constDesc));
-	constDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	constDesc.ByteWidth = sizeof(XMMATRIX);
-	constDesc.Usage = D3D11_USAGE_DEFAULT;
-
-	if (FAILED(d3dDevice_->CreateBuffer(&constDesc, 0, &projCB_)))
-	{
-		return false;
-	}
-
-	float AspectRatio = static_cast<float>(windowWidth) / static_cast<float>(windowHeight);
-	projMatrix_ = XMMatrixPerspectiveFovLH(XM_PI / 4.0f, AspectRatio, 0.1f, 100.0f);
-	projMatrix_ = XMMatrixTranspose(projMatrix_);
-	d3dContext_->UpdateSubresource(projCB_, 0, 0, &projMatrix_, 0, 0);
-	d3dContext_->VSSetConstantBuffers(2, 1, &projCB_);
-	
-
-	ZeroMemory(&constDesc, sizeof(constDesc));
-	constDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	constDesc.ByteWidth = sizeof(XMFLOAT4)*2;
-	constDesc.Usage = D3D11_USAGE_DEFAULT;
-	//constDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-
-	if (FAILED(d3dDevice_->CreateBuffer(&constDesc, 0, &constHemispheric_)))
-	{
-		return false;
-	}
-	d3dContext_->UpdateSubresource(constHemispheric_, 0, 0, &hemiColor_, 0, 0);
-	d3dContext_->PSSetConstantBuffers(0, 1, &constHemispheric_);
-	
-	
-
-	return true;
-}
-bool DirectDevice::createViewsDependWindowSize()
-
-{// Get the swapchain's first buffer
-
-	ID3D11Texture2D* BackBuffer;
-	if (FAILED(swapChain_->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&BackBuffer)))
-	{
-		Message("Failed to get the swap chain back buffer!");
-		return false;
-	};
-
-	// Create Render Target View
-	// Render target is now represented by swapchain's first buffer
-	D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
-	ZeroMemory(&rtvDesc, sizeof(rtvDesc));
-	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-
-
-	HRESULT result = d3dDevice_->CreateRenderTargetView(BackBuffer, &rtvDesc, &renderTargetView_);
-	if (BackBuffer)
-		BackBuffer->Release();
-	if (FAILED(result))
-	{
-		Message("Failed to create the render target view!");
-		return false;
-	};
-
-
-	// Create the Depth stencil texture
-	D3D11_TEXTURE2D_DESC depthTexDesc;
-	ZeroMemory(&depthTexDesc, sizeof(depthTexDesc));
-	depthTexDesc.Width = windowWidth;
-	depthTexDesc.Height = windowHeight;
-	depthTexDesc.MipLevels = 1;
-	depthTexDesc.ArraySize = 1;
-	depthTexDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthTexDesc.SampleDesc.Count = 1;
-	depthTexDesc.SampleDesc.Quality = 0;
-	depthTexDesc.Usage = D3D11_USAGE_DEFAULT;
-	depthTexDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	depthTexDesc.CPUAccessFlags = 0;
-	depthTexDesc.MiscFlags = 0;
-
-	result = d3dDevice_->CreateTexture2D(&depthTexDesc, NULL, &depthTexture_);
-
-	if (FAILED(result))
-	{
-		Message("Failed to create the depth texture!");
-		return false;
-	}
-
-	// Create the depth stencil view
-	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
-	ZeroMemory(&descDSV, sizeof(descDSV));
-	descDSV.Format = depthTexDesc.Format;
-	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	descDSV.Texture2D.MipSlice = 0;
-
-	result = d3dDevice_->CreateDepthStencilView(depthTexture_, &descDSV, &depthStencilView_);
-
-	if (FAILED(result))
-	{
-		Message("Failed to create the depth stencil target view!");
-		return false;
-	}
-
-	//Output merge set render target
-	d3dContext_->OMSetRenderTargets(1, &renderTargetView_, depthStencilView_);
-
-	//Rasterizer Stage set view port
-	D3D11_VIEWPORT viewport;
-	viewport.Width = static_cast<float>(windowWidth);
-	viewport.Height = static_cast<float>(windowHeight);
-	viewport.MinDepth = 0.0f;
-	viewport.MaxDepth = 1.0f;
-	viewport.TopLeftX = 0.0f;
-	viewport.TopLeftY = 0.0f;
-
-	d3dContext_->RSSetViewports(1, &viewport);
-
-	return true;
-}
-bool DirectDevice::CompileD3DShader(LPCWSTR filePath, LPCSTR entry, LPCSTR shaderModel, ID3DBlob** buffer)
-{
-	DWORD shaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
-
-#if defined( DEBUG ) || defined( _DEBUG )
-	shaderFlags |= D3DCOMPILE_DEBUG;
-#endif
-	
-	ID3DBlob* errorBuffer = nullptr;
-	HRESULT result;
-	const D3D_SHADER_MACRO defines[] =
-	{
-	  "EXAMPLE_DEFINE", "1",
-	   NULL, NULL
-	};
-
-	result = D3DCompileFromFile(filePath, defines, D3D_COMPILE_STANDARD_FILE_INCLUDE, entry, shaderModel,shaderFlags, 0, buffer, &errorBuffer);
-
-	if (FAILED(result))
-	{
-		Message("Error compile shader code form file!");
-		if (errorBuffer != 0)
-		{
-			
-			OutputDebugStringA((char*)errorBuffer->GetBufferPointer());
-			errorBuffer->Release();
-		}
-
-		return false;
-	}
-
-	if (errorBuffer != 0)
-		errorBuffer->Release();
-
 	return true;
 }
 
-void DirectDevice::getWindowSize(HWND hwnd)
+void DirectDevice::getWindowSize()
 {
 	RECT dimensions;
-	GetClientRect(hwnd, &dimensions);
+	GetClientRect(handleWindow, &dimensions);
 	windowWidth = dimensions.right - dimensions.left;
 	windowHeight = dimensions.bottom - dimensions.top;
 };
-void DirectDevice::swapChainSetNewSize(HWND hwnd)
-{
-	getWindowSize(hwnd);
-	if (depthTexture_)		depthTexture_->Release();
-	if (depthStencilView_)	depthStencilView_->Release();
-	if (renderTargetView_)	renderTargetView_->Release();
-	if (FAILED(swapChain_->ResizeBuffers(1, windowWidth, windowHeight, DXGI_FORMAT_UNKNOWN, NULL)))
-	{
-		Message("Failed to resize the buffer");
-	};
 
-	createViewsDependWindowSize();
-
-	float AspectRatio = static_cast<float>(windowWidth) / static_cast<float>(windowHeight);
-	projMatrix_ = XMMatrixPerspectiveFovLH(XM_PI / 4.0f, AspectRatio, 0.1f, 100.0f);
-	projMatrix_ = XMMatrixTranspose(projMatrix_);
-	d3dContext_->UpdateSubresource(projCB_, 0, 0, &projMatrix_, 0, 0);
-	d3dContext_->VSSetConstantBuffers(2, 1, &projCB_);
-
-};
-
-void DirectDevice::Clear()
-{
-
-	if (d3dContext_ == 0)
-		return;
-	float clearColor[4] = { 0.2f, 0.2f, 0.2f, 1.0f };
-	d3dContext_->ClearRenderTargetView(renderTargetView_, clearColor);
-	d3dContext_->ClearDepthStencilView(depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
-	
-}
-
-void DirectDevice::Present()
-{
-	swapChain_->Present(0, 0);
-}
 
 DirectDevice::~DirectDevice()
 {
@@ -282,12 +91,11 @@ void DirectDevice::Message(LPCSTR x)
 
 void DirectDevice::Relase()
 {
-	if (depthTexture_)		depthTexture_->Release();
-	if (depthStencilView_)	depthStencilView_->Release();
-	if (d3dContext_)		d3dContext_->Release();
-	if (d3dDevice_)			d3dDevice_->Release();
-	if (swapChain_)			swapChain_->Release();
-	if (renderTargetView_)	renderTargetView_->Release();
-	if (projCB_)			projCB_->Release();
-	return;
+
+	d3dContext_->Release();
+	d3dDevice_->Release();
+	swapChain_->Release();
+	d3dContext_ = 0;
+	d3dDevice_ = 0;
+	swapChain_ = 0;
 };

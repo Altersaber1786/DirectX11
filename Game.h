@@ -1,9 +1,12 @@
 #ifndef _GAME_H_
 #define _GAME_H_
 
-#include "DirectDevice.h"
-#include "Sprite.h"
+
+#include "GameObject.h"
 #include "Camera.h"
+#include "GraphicRenderer.h"
+#include <vector>
+
 class Game
 {
 public:
@@ -13,12 +16,14 @@ public:
 	void Render();
 	Game();
 	~Game();
-	DirectDevice*	m_device;
-
+	void Relase();
+	GraphicRenderer* m_Graphic;
 private:
+	int totalMaterials;
+	int totalModels;
+	GameObject*		Player;
 	Camera*			cam_1;
-	Sprite*			obj_1; 
-	Sprite*			obj_2;
+
 };
 
 #endif

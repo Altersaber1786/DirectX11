@@ -3,33 +3,26 @@
 
 Game::Game()
 {
+	totalMaterials = 0;
 }
 
 bool Game::Initialize(HWND hwnd)
 {
-	m_device = new DirectDevice();
-	if (!m_device->Initialize(hwnd, true))
-	{
+	Player = new GameObject();
+	Player->Initialize(XMFLOAT3(-6.0f, 0.0f, 16.0f),
+					   XMFLOAT3(0.0f, 0.0f, 0.0f),
+					   XMFLOAT3(1.0f, 1.0f, 1.0f));
+	Player->modelIndex = 0;
+	m_Graphic = new GraphicRenderer();
+	if(!m_Graphic->Initialize(hwnd))
 		return false;
-	};
-
-	obj_1 = new Sprite();
-	if (!obj_1->Initialize(
-		XMFLOAT3(-5.0f, 1.0f, 16.0f),
-		XMFLOAT3(0.0f, 1.0f, 1.0f),
-		XMFLOAT3(1.0f, 1.0f, 1.0f),
-		m_device, (LPCWSTR)L"TextureMap.fx", L"Rengeg.DDS", "sphere.obj"))
-	{
-		return false;
-	};
-
-	
+	m_Graphic->LoadModelList();
 	cam_1 = new Camera();
-	if (!cam_1->Initialize(m_device))
-	{
-		return false;
-	}
-	cam_1->Follow(obj_1);
+	m_Graphic->LoadObject(Player);
+	m_Graphic->LoadCamera(cam_1);
+
+	//cam_1->Follow(Player);
+
 	return true;
 }
 
@@ -41,22 +34,20 @@ bool Game::LoadContent()
 
 void Game::Update()
 {
-
-	obj_1->Update();
-	cam_1->Update(m_device);
+	Player->position_.x += 0.005;
+	//Player->rotation_.y += 0.001;
+	m_Graphic->Update();
 }
 
 void Game::Render()
 {
-	m_device->Clear();
-	obj_1->Render(m_device);
-	m_device->Present();
+	m_Graphic->Render();
 }
 
 Game::~Game()
 {
-		delete cam_1;
-		delete obj_1;
-		delete obj_2;
-		delete m_device;
+	delete cam_1;
+	cam_1 = 0;
+	delete m_Graphic;
+	m_Graphic = 0;
 }
