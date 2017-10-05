@@ -44,6 +44,7 @@ void Camera::Update(DirectDevice* device)
 	if (m_target != nullptr)
 	{
 		position.x = m_target->position_.x;
+		position.y = m_target->position_.y;
 		viewMatrix = XMMatrixLookAtLH(XMLoadFloat4(&position), XMLoadFloat3(&(m_target->position_)), XMLoadFloat3(&up_Y));
 		viewMatrix = XMMatrixTranspose(viewMatrix);
 	}

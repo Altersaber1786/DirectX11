@@ -2,11 +2,17 @@
 
 LightShader::LightShader()
 {
-	m_totalLights = 0;
-	LightSource light_1;
-	light_1.position = XMFLOAT4(0.0f, 0.0f, 10.0f, 0.0f);
-	light_1.intensity = XMFLOAT4(0.6f, 0.6f, 0.6f, 1.0f);
-	m_lightSources.push_back(light_1);
+	LightSource light[3];
+
+	light[0].position = XMFLOAT4(0.0f, 0.0f, 12.0f, 0.0f);
+	light[0].intensity = XMFLOAT4(0.6f, 0.2f, 0.6f, 1.0f);
+	light[1].position = XMFLOAT4(5.0f, 5.0f, 12.0f, 0.0f);
+	light[1].intensity = XMFLOAT4(0.2f, 0.8f, 0.8f, 1.0f);
+	light[2].position = XMFLOAT4(5.0f, -5.0f, 12.0f, 0.0f);
+	light[2].intensity = XMFLOAT4(0.8f, 0.4f, 0.6f, 1.0f);
+	m_lightSources.push_back(light[0]);
+	m_lightSources.push_back(light[1]);
+	m_lightSources.push_back(light[2]);
 	m_totalLights = static_cast<UINT>(m_lightSources.size());
 }
 bool LightShader::CompileD3DShader(LPCWSTR filePath, LPCSTR entry, LPCSTR shaderModel, ID3DBlob** buffer)
@@ -322,10 +328,6 @@ bool LightShader::InitGBuffers(ID3D11Device* d3dDevice)
 			return false;
 		}
 
-		float right = static_cast<float>(textureWidth) / 2.0f;
-		float left = -right;
-		float top	= static_cast<float>(textureHeight) / 2.0f;
-		float bottom = -top;
 
 		windowSquare[0].position = XMFLOAT3(-1.0f, 1.0f, 1.0f);  // Top left.
 		windowSquare[0].texcoord = XMFLOAT2(0.0f, 0.0f);

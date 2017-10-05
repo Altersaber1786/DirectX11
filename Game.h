@@ -22,8 +22,10 @@ private:
 	int totalMaterials;
 	int totalModels;
 	GameObject*		Player;
-	Camera*			cam_1;
+	GameObject*		Player2;
 
+	Camera*			cam_1;
+	
 };
 
 #endif

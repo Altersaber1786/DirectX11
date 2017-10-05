@@ -22,8 +22,8 @@ private:
 	{
 		float Ka = 1.0f;
 		float Kd = 1.0f;
-		float Ks = 0.0f;
-		float SpecExp = 0.0f;
+		float Ks = 1.0f;
+		float SpecExp = 40.0f;
 	}surfaceProperties;
 
 	ID3D11InputLayout*			inputLayout_;

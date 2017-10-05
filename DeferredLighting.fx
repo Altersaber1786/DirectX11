@@ -48,9 +48,9 @@ float4 calcLighting(float4 position, float4 normal, float4 diffspeccoe)
 	float SpecExp = diffspeccoe.z;
 
 	float4 DirToLight = PointLightPosition - position;
-	float distance = length(DirToLight);
+	float distance = length(DirToLight.xyz);
 	DirToLight = DirToLight / distance;
-	distance = distance * distance;
+	distance = pow(distance, 2);
 
 	//Intensity of the diffuse light. Saturate to keep within the 0-1 range.
 	float NdotL = dot(normal, DirToLight);
@@ -60,15 +60,14 @@ float4 calcLighting(float4 position, float4 normal, float4 diffspeccoe)
 	finalInten = intensity * PointLightIntensity * Kd ;
 
 	//Specular
-	float4 viewDir = normalize(Eyepos - position);
-	float4 H = normalize(DirToLight + viewDir);
-
+	float3 viewDir = normalize(Eyepos.xyz - position.xyz);
+	float3 H = normalize(viewDir.xyz + DirToLight.xyz);
 	//Intensity of the specular light
 	float NdotH = dot(normal, H);
 	intensity = pow(saturate(NdotH), SpecExp);
 
 	//Sum up the specular light factoring
-	finalInten = finalInten + (intensity * PointLightIntensity * Ks) ;
+	finalInten +=  intensity * Ks * PointLightIntensity;
 	
 	return finalInten;
 }

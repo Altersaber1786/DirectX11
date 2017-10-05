@@ -182,7 +182,7 @@ void GraphicRenderer::SetBuffersNewSize()
 		MessageBox(NULL, "Failed to resize the buffer", NULL, NULL);
 	};
 	CreateViewsDependWindowSize();
-	m_deferredLighting->Initialize(m_device->d3dDevice_);
+	m_deferredLighting->InitGBuffers(m_device->d3dDevice_);
 
 }
 

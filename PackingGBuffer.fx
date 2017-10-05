@@ -46,6 +46,7 @@ struct PS_INPUT
 	float4 pos : SV_POSITION;
 	float2 tex0 : TEXCOORD0;
 	float4 norm : NORMAL0;
+	float3 worldPos : TEXCOORD1;
 };
 
 struct PS_OUTPUT
@@ -62,11 +63,11 @@ PS_INPUT VS_Main(VS_INPUT vertex)
 {
 	PS_INPUT vsOut = (PS_INPUT)0;
 	vsOut.pos = mul(vertex.pos, worldMatrix);
+	vsOut.worldPos = vsOut.pos.xyz;
 	vsOut.pos = mul(vsOut.pos, viewMatrix);
 	vsOut.pos = mul(vsOut.pos, projMatrix);
 	vsOut.tex0 = vertex.tex0;
 	vsOut.norm = mul(vertex.norm, rotationMatrix);
-
 	return vsOut;
 }
 
@@ -103,9 +104,10 @@ float4 calcDiffuse(float4 normal)
 PS_OUTPUT PS_Main(PS_INPUT frag) : SV_TARGET
 {
 	PS_OUTPUT result;
-	result.BaseColor = colorMap.Sample(samplerState, frag.tex0);
-	result.BaseColor = Powf4(result.BaseColor, 1.0 / 2.2);
-	result.Position = frag.pos;
+	//result.BaseColor = colorMap.Sample(samplerState, frag.tex0);
+	//result.BaseColor = Powf4(result.BaseColor, 1.0 / 2.2);
+	result.BaseColor = float4 (1.0f, 1.0f, 1.0f, 1.0f);
+	result.Position = float4(frag.worldPos, 1.0f);
 	result.Normal = frag.norm;
 	result.Intensity = calcAmbient(frag.norm) + calcDiffuse(frag.norm);
 	result.DiffSpecCoe.x = Kd;
