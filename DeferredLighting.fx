@@ -29,8 +29,6 @@ struct PS_INPUT
 	float2 tex0 : TEXCOORD0;
 };
 
-
-
 PS_INPUT VS_Main(VS_INPUT vertex)
 {
 	PS_INPUT vsOut = (PS_INPUT)0;

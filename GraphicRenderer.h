@@ -22,6 +22,7 @@ public:
 	bool CreateViewsDependWindowSize();
 	bool LoadCamera(Camera* cam);
 	bool LoadObject(GameObject* Object);
+	XMMATRIX	projMatrix_;
 private:
 
 	void BeginScene();
@@ -33,7 +34,7 @@ private:
 	UINT		totalModels;
 	UINT		windowWidth;
 	UINT		windowHeight;
-	XMMATRIX	projMatrix_;
+
 
 	std::vector<GameMaterial*>	MaterialList;
 	std::vector<GameModel*>		ModelList;
@@ -44,7 +45,8 @@ private:
 	ID3D11DepthStencilState*    m_DepthEnableState;
 	ID3D11DepthStencilState*    m_DepthDisableState;
 	DirectDevice*				m_device;
-	ID3D11Buffer*				projCB_; //Project constant buffer
+	ID3D11RasterizerState*		m_RSWireFrame;
+	ID3D11RasterizerState*		m_RSNormal;
 
 };
 

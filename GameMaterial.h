@@ -10,9 +10,9 @@ public:
 	GameMaterial();
 	~GameMaterial();
 	bool LoadContent(DirectDevice* device, wchar_t* textureFile);
-	void Render(DirectDevice* device);
+	void Render(DirectDevice* device, XMMATRIX viewMat, XMMATRIX projMat);
 	void Update();
-	int	totalObjects;
+	UINT	totalObjects;
 	bool pushObject(GameObject* obj);
 
 	std::vector<GameObject*>	ObjectList;
@@ -23,7 +23,7 @@ private:
 		float Ka = 1.0f;
 		float Kd = 1.0f;
 		float Ks = 1.0f;
-		float SpecExp = 40.0f;
+		float SpecExp = 60.0f;
 	}surfaceProperties;
 
 	ID3D11InputLayout*			inputLayout_;

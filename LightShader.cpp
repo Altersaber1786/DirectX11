@@ -4,11 +4,12 @@ LightShader::LightShader()
 {
 	LightSource light[3];
 
+	
 	light[0].position = XMFLOAT4(0.0f, 0.0f, 12.0f, 0.0f);
 	light[0].intensity = XMFLOAT4(0.6f, 0.2f, 0.6f, 1.0f);
 	light[1].position = XMFLOAT4(5.0f, 5.0f, 12.0f, 0.0f);
-	light[1].intensity = XMFLOAT4(0.2f, 0.8f, 0.8f, 1.0f);
-	light[2].position = XMFLOAT4(5.0f, -5.0f, 12.0f, 0.0f);
+	light[1].intensity = XMFLOAT4(0.2f, 0.6f, 0.6f, 1.0f);
+	light[2].position = XMFLOAT4(5.0f, -5.0f, 0.0f, 0.0f);
 	light[2].intensity = XMFLOAT4(0.8f, 0.4f, 0.6f, 1.0f);
 	m_lightSources.push_back(light[0]);
 	m_lightSources.push_back(light[1]);
@@ -36,7 +37,7 @@ bool LightShader::CompileD3DShader(LPCWSTR filePath, LPCSTR entry, LPCSTR shader
 	if (FAILED(result))
 	{
 		MessageBox(NULL,"Error compile shader code from file!", NULL, 0);
-		if (errorBuffer != 0)
+		if (errorBuffer != nullptr)
 		{
 
 			OutputDebugStringA((char*)errorBuffer->GetBufferPointer());
@@ -46,18 +47,21 @@ bool LightShader::CompileD3DShader(LPCWSTR filePath, LPCSTR entry, LPCSTR shader
 		return false;
 	}
 
-	if (errorBuffer != 0)
+	if (errorBuffer != nullptr)
 		errorBuffer->Release();
 
 	return true;
 }
+
 bool LightShader::Initialize(ID3D11Device* d3dDevice)
 {
 	HRESULT result;
 	ID3DBlob* vsBytecode;
 	ID3DBlob* psBytecode;
+	ID3DBlob* hsBytecode;
+	ID3DBlob* dsBytecode;
 
-	bool compileResult = CompileD3DShader(L"PackingGBuffer.fx", "VS_Main", "vs_5_0", &vsBytecode);
+	bool compileResult = CompileD3DShader(L"PackingGBuffer.vs", "VS_Main", "vs_5_0", &vsBytecode);
 
 	if (compileResult == false)
 	{
@@ -122,7 +126,7 @@ bool LightShader::Initialize(ID3D11Device* d3dDevice)
 	}
 	vsBytecode->Release();
 
-	compileResult = CompileD3DShader(L"PackingGBuffer.fx", "PS_Main", "ps_5_0", &psBytecode);
+	compileResult = CompileD3DShader(L"PackingGBuffer.ps", "PS_Main", "ps_5_0", &psBytecode);
 	if (!compileResult)
 	{
 		MessageBox(NULL, "Error compiling gbuffer pixel shader!", NULL, NULL);
@@ -161,10 +165,46 @@ bool LightShader::Initialize(ID3D11Device* d3dDevice)
 		MessageBox(NULL, "Error creating  final PS!", NULL, NULL);
 		return false;
 	};
+
+	
 	psBytecode->Release();
+
+	compileResult = CompileD3DShader(L"tessdemo.hs", "HS", "hs_5_0", &hsBytecode);
+	if (!compileResult)
+	{
+		MessageBox(NULL, "Error compiling hull shader!", NULL, NULL);
+		return false;
+	}
+
+	result = d3dDevice->CreateHullShader(hsBytecode->GetBufferPointer(), hsBytecode->GetBufferSize(), NULL, &m_hullShader);
+	if (FAILED(result))
+	{
+		MessageBox(NULL, "Error creating  hull shader!", NULL, NULL);
+		hsBytecode->Release();
+		return false;
+	};
+	hsBytecode->Release();
+
+	compileResult = CompileD3DShader(L"tessdemo.ds", "DS", "ds_5_0", &dsBytecode);
+	if (!compileResult)
+	{
+		MessageBox(NULL, "Error compiling domain shader!", NULL, NULL);
+		return false;
+	}
+
+	result = d3dDevice->CreateDomainShader(dsBytecode->GetBufferPointer(), dsBytecode->GetBufferSize(), NULL, &m_domainShader);
+	if (FAILED(result))
+	{
+		MessageBox(NULL, "Error creating  domain shader!", NULL, NULL);
+		dsBytecode->Release();
+		return false;
+	};
+	dsBytecode->Release();
+
 	vsBytecode = nullptr;
 	psBytecode = nullptr;
-
+	hsBytecode = nullptr;
+	dsBytecode = nullptr;
 	//Sampler state desc
 	D3D11_SAMPLER_DESC pointSamplerDesc;
 	ZeroMemory(&pointSamplerDesc, sizeof(pointSamplerDesc));
@@ -208,7 +248,7 @@ bool LightShader::Initialize(ID3D11Device* d3dDevice)
 	diffAmb.AmbientRange = XMFLOAT4(0.5f, 0.5f, 0.5f, 0.0f);
 
 	diffAmb.DiffuseDirection = XMFLOAT4(0.0f, -1.0f, 0.0f, 0.0f);
-	diffAmb.DiffuseIntensity = XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f);
+	diffAmb.DiffuseIntensity = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 
 
 	return true;
@@ -372,8 +412,14 @@ void LightShader::PreparePacking(ID3D11DeviceContext* context)
 {
 
 	context->IASetInputLayout(m_modelInputLayout);
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	context->VSSetShader(m_gPackingVShader, 0, 0);
+	context->HSSetShader(m_hullShader, 0, 0);
+	context->DSSetShader(m_domainShader, 0, 0);
+	context->GSSetShader(NULL, NULL, 0);
+
 	context->PSSetShader(m_gPackingPShader, 0, 0);
+	
 	context->OMSetRenderTargets(G_BUFFER_COUNT - 1, m_RenderTargetViews, m_DepthStencilView);
 	for (UINT i = 0; i < G_BUFFER_COUNT - 1; i++)
 	{
@@ -386,13 +432,14 @@ void LightShader::PreparePacking(ID3D11DeviceContext* context)
 
 void LightShader::RenderDeferred(ID3D11DeviceContext* context)
 {
-
 	context->IASetInputLayout(m_squareInputLayout);
 	context->IASetVertexBuffers(0, 1, &m_squareVertexBuffer, &stride, &offset);
 	context->VSSetShader(m_deferredVShader, 0, 0);
+	context->HSSetShader(NULL, 0, 0);
+	context->DSSetShader(NULL, 0, 0);
 	context->PSSetShader(m_deferredPShader, 0, 0);
 	context->PSSetSamplers(0, 1, &m_PointSampler);
-
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	int j = -1, k = G_BUFFER_COUNT - 2;
 	context->PSSetShaderResources(0, 4, m_ShaderResourceViews);
 	for (UINT i = 0; i < m_totalLights; i++)
@@ -429,19 +476,20 @@ void LightShader::Release()
 		m_RenderTargetViews[i] = 0;
 	}
 
-	m_DepthTexture->Release();
-	m_DepthStencilView->Release();
-	m_squareVertexBuffer->Release();
-	m_modelInputLayout->Release();
-	m_squareInputLayout->Release();
-	m_gPackingVShader->Release();
-	m_gPackingPShader->Release();
-	m_deferredVShader->Release();
-	m_deferredPShader->Release();
-	m_finalSquarePS->Release();
-	m_LightProperties->Release();
-	m_PointSampler->Release();
-
+	if (m_DepthTexture != nullptr)m_DepthTexture->Release();
+	if (m_DepthStencilView != nullptr)m_DepthStencilView->Release();
+	if (m_squareVertexBuffer != nullptr)m_squareVertexBuffer->Release();
+	if (m_modelInputLayout != nullptr)m_modelInputLayout->Release();
+	if (m_squareInputLayout != nullptr)m_squareInputLayout->Release();
+	if (m_gPackingVShader != nullptr)m_gPackingVShader->Release();
+	if (m_gPackingPShader!=nullptr) m_gPackingPShader->Release();
+	if (m_deferredVShader != nullptr)m_deferredVShader->Release();
+	if (m_deferredPShader != nullptr)m_deferredPShader->Release();
+	if (m_finalSquarePS != nullptr)m_finalSquarePS->Release();
+	if (m_LightProperties != nullptr)m_LightProperties->Release();
+	if (m_PointSampler != nullptr)m_PointSampler->Release();
+	if (m_hullShader != nullptr)m_hullShader->Release();
+	if (m_domainShader != nullptr)m_domainShader->Release();
 
 	m_DepthTexture = 0;
 	m_DepthStencilView = 0;
@@ -455,7 +503,8 @@ void LightShader::Release()
 	m_finalSquarePS = 0;
 	m_LightProperties = 0;
 	m_PointSampler = 0;
-
+	m_hullShader = 0;
+	m_domainShader = 0;
 }
 
 LightShader::~LightShader()

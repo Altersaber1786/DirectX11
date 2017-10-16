@@ -24,7 +24,7 @@ public:
 	void		SetRotation(XMFLOAT3 rotation);
 	void		SetScale(XMFLOAT3 scale);
 	void		Update();
-	void		Render(DirectDevice* device);
+	void		Render(DirectDevice* device, XMMATRIX viewMat, XMMATRIX projMat);
 	void		Relase();
 	XMMATRIX	GetWorldMatrix();
 	void		Set3DModel(GameModel* model);
@@ -39,10 +39,16 @@ private:
 		XMMATRIX	world;
 		XMMATRIX	rotation;
 	}worldRotMat_;
+	struct WorldViewProj
+	{
+		XMMATRIX	world;
+		XMMATRIX	view;
+		XMMATRIX	project;
+	}WorldViewProj_;
 
 	GameModel*					m_3DModel;
 	ID3D11Buffer*				m_worldRotateCB;
-	
+	ID3D11Buffer*				m_WorldViewProjCB;
 };
 
 #endif

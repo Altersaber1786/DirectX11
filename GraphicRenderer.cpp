@@ -1,7 +1,6 @@
 #include "GraphicRenderer.h"
 
 
-
 GraphicRenderer::GraphicRenderer()
 {
 
@@ -111,17 +110,7 @@ bool GraphicRenderer::Initialize(HWND hwnd)
 	depthDisabledStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 	m_device->d3dDevice_->CreateDepthStencilState(&depthDisabledStencilDesc, &m_DepthDisableState);
 
-	//Constant project buffer
-	D3D11_BUFFER_DESC constDesc;
-	ZeroMemory(&constDesc, sizeof(constDesc));
-	constDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	constDesc.ByteWidth = sizeof(XMMATRIX);
-	constDesc.Usage = D3D11_USAGE_DEFAULT;
 
-	if (FAILED(m_device->d3dDevice_->CreateBuffer(&constDesc, 0, &projCB_)))
-	{
-		return false;
-	}
 	if (!CreateViewsDependWindowSize())
 	{
 		return false;
@@ -158,7 +147,6 @@ bool GraphicRenderer::CreateViewsDependWindowSize()
 
 	float AspectRatio = static_cast<float>(windowWidth) / static_cast<float>(windowHeight);
 	projMatrix_ = XMMatrixPerspectiveFovLH(XM_PI / 4.0f, AspectRatio, 0.1f, 100.0f);
-	projMatrix_ = XMMatrixTranspose(projMatrix_);
 	
 	viewport.Width = static_cast<float>(windowWidth);
 	viewport.Height = static_cast<float>(windowHeight);
@@ -166,6 +154,15 @@ bool GraphicRenderer::CreateViewsDependWindowSize()
 	viewport.MaxDepth = 1.0f;
 	viewport.TopLeftX = 0.0f;
 	viewport.TopLeftY = 0.0f;
+
+	
+	D3D11_RASTERIZER_DESC rsDesc;
+	ZeroMemory(&rsDesc, sizeof(rsDesc));
+	rsDesc.FillMode = D3D11_FILL_WIREFRAME;
+	rsDesc.CullMode = D3D11_CULL_NONE;
+	m_device->d3dDevice_->CreateRasterizerState(&rsDesc, &m_RSWireFrame);
+	ZeroMemory(&rsDesc, sizeof(rsDesc));
+	m_device->d3dDevice_->CreateRasterizerState(&rsDesc, &m_RSNormal);
 
 	m_device->d3dContext_->RSSetViewports(1, &viewport);
 	return true;
@@ -192,6 +189,7 @@ void GraphicRenderer::Update()
 	{
 		MaterialList[i]->Update();
 	}
+	camera->Update(m_device);
 }
 
 void GraphicRenderer::BeginScene()
@@ -203,20 +201,20 @@ void GraphicRenderer::BeginScene()
 void GraphicRenderer::EndScene()
 {
 	m_device->swapChain_->Present(0, 0);
+
 }
 
 void GraphicRenderer::Render()
 {
 	BeginScene();
-	camera->Update(m_device);
-	m_device->d3dContext_->UpdateSubresource(projCB_, 0, 0, &projMatrix_, 0, 0);
-	m_device->d3dContext_->VSSetConstantBuffers(2, 1, &projCB_);
+	m_device->d3dContext_->RSSetState(m_RSWireFrame);
 	m_device->d3dContext_->OMSetDepthStencilState(m_DepthEnableState, 1);
 
 	for (UINT i = 0; i < totalMaterials; i++)
 	{
-		MaterialList[i]->Render(m_device);
+		MaterialList[i]->Render(m_device, camera->viewMatrix, projMatrix_);
 	}
+	m_device->d3dContext_->RSSetState(m_RSNormal);
 	m_device->d3dContext_->OMSetRenderTargets(1, &m_backBufferTarget, 0);
 	m_device->d3dContext_->OMSetDepthStencilState(m_DepthDisableState, 1);
 	m_device->d3dContext_->PSSetConstantBuffers(1, 1, camera->GetPosCB());
@@ -230,7 +228,7 @@ void GraphicRenderer::Release()
 {
 	for (UINT i = 0; i < totalMaterials; i++)
 	{
-		for (int j = 0; j < MaterialList[i]->totalObjects; j++)
+		for (UINT j = 0; j < MaterialList[i]->totalObjects; j++)
 		{
 			delete MaterialList[i]->ObjectList[j];
 		}
@@ -246,14 +244,16 @@ void GraphicRenderer::Release()
 	delete m_device;
 	delete m_deferredLighting;
 	m_deferredLighting = 0;
-	m_backBufferTarget->Release();
+	if(m_backBufferTarget!= nullptr)m_backBufferTarget->Release();
 	m_backBufferTarget = 0;
-	m_DepthEnableState->Release();
+	if (m_DepthEnableState != nullptr)m_DepthEnableState->Release();
 	m_DepthEnableState = 0;
-	m_DepthDisableState->Release();
+	if (m_DepthDisableState != nullptr)m_DepthDisableState->Release();
 	m_DepthDisableState = 0;
-	projCB_->Release();
-	projCB_ = 0;
+	if (m_RSWireFrame != nullptr)m_RSWireFrame->Release();
+	m_RSWireFrame = 0;
+	if (m_RSNormal != nullptr)m_RSNormal->Release();
+	m_RSNormal = 0;
 	camera = 0;
 }
 

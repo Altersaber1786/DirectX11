@@ -10,7 +10,7 @@ GameMaterial::GameMaterial()
 bool GameMaterial::pushObject(GameObject* obj)
 {
 	ObjectList.push_back (obj);
-	totalObjects = static_cast<int>(ObjectList.size());
+	totalObjects = static_cast<unsigned int>(ObjectList.size());
 	return true;
 };
 
@@ -57,14 +57,18 @@ bool GameMaterial::LoadContent(DirectDevice* device, wchar_t* textureFile)
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(samplerDesc));
 	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerDesc.MipLODBias = 0.0f;
 	samplerDesc.MaxAnisotropy = 1;
 	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	samplerDesc.BorderColor[0] = 1.0f;
+	samplerDesc.BorderColor[1] = 1.0f;
+	samplerDesc.BorderColor[2] = 1.0f;
+	samplerDesc.BorderColor[3] = 1.0f;
 	d3dResult = device->d3dDevice_->CreateSamplerState(&samplerDesc, &samplerState_);
 
 	if (FAILED(d3dResult))
@@ -92,14 +96,14 @@ bool GameMaterial::LoadContent(DirectDevice* device, wchar_t* textureFile)
 void GameMaterial::Update()
 {
 	
-	for (int i = 0; i < totalObjects; i++)
+	for (UINT i = 0; i < totalObjects; i++)
 	{
 		ObjectList[i]->Update();
 	}
 	
 }
 
-void GameMaterial::Render(DirectDevice* device)
+void GameMaterial::Render(DirectDevice* device, XMMATRIX viewMat, XMMATRIX projMat)
 {
 
 	device->d3dContext_->PSSetShaderResources(0, 1, &shaderResourceView_); //Bind resource to pixel shader via shader Resource view
@@ -109,7 +113,7 @@ void GameMaterial::Render(DirectDevice* device)
 	
 	for (UINT i = 0; i < totalObjects; i++)
 	{
-		ObjectList[i]->Render(device);
+		ObjectList[i]->Render(device, viewMat, projMat);
 	}
 };
 

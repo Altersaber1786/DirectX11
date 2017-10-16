@@ -1,0 +1,51 @@
+cbuffer cbMatrices : register(b0)
+{
+	matrix worldMat;
+	matrix viewMat;
+	matrix projMat;
+};
+
+struct HS_CONSTANT_DATA_OUTPUT
+{
+	float Edges[3] : SV_TessFactor;
+	float Inside : SV_InsideTessFactor;
+};
+
+struct HS_CONTROL_POINT_OUTPUT
+{
+	float3 vWorldPos : POSITION;
+	float2 vTexCoord : TEXCOORD0;
+	float3 vNormal : NORMAL;
+};
+
+struct DS_OUTPUT
+{
+    float4 vCSPos : SV_POSITION;
+    float2 vTexCoord  : TEXCOORD0;
+    float3 vNormal   : NORMAL;
+	float3 vWorldPos : POSITION;
+};
+
+[domain("tri")]
+
+DS_OUTPUT DS( HS_CONSTANT_DATA_OUTPUT input, float3 BarycentricCoordinates : SV_DomainLocation, const OutputPatch<HS_CONTROL_POINT_OUTPUT, 3> TrianglePatch )
+{
+    DS_OUTPUT Out;
+	Out.vWorldPos = BarycentricCoordinates.x * TrianglePatch[0].vWorldPos + 
+	BarycentricCoordinates.y * TrianglePatch[1].vWorldPos + 
+	BarycentricCoordinates.z * TrianglePatch[2].vWorldPos;
+	
+    Out.vTexCoord = BarycentricCoordinates.x * TrianglePatch[0].vTexCoord +  
+	BarycentricCoordinates.y * TrianglePatch[1].vTexCoord + 
+	BarycentricCoordinates.z * TrianglePatch[2].vTexCoord;
+	
+	Out.vNormal = BarycentricCoordinates.x * TrianglePatch[0].vNormal + 
+	BarycentricCoordinates.y * TrianglePatch[1].vNormal + 
+	BarycentricCoordinates.z * TrianglePatch[2].vNormal;
+	
+	float4 clipSpacePos = float4(Out.vWorldPos, 1.0f);
+	Out.vCSPos = mul(clipSpacePos, viewMat);
+	Out.vCSPos = mul(Out.vCSPos, projMat);
+	
+	return Out;   
+}

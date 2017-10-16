@@ -35,6 +35,16 @@ bool GameObject::InitWorldCB(ID3D11Device* device)
 		MessageBox(NULL, "Failed to create world const buffer", NULL, NULL);
 		return false;
 	}
+
+	constDesc.ByteWidth = sizeof(WorldViewProj);
+	result = device->CreateBuffer(&constDesc, 0, &m_WorldViewProjCB);
+
+	if (FAILED(result))
+	{
+		MessageBox(NULL, "Failed to create matrices const buffer", NULL, NULL);
+		return false;
+	}
+
 	return true;
 }
 void GameObject::Set3DModel(GameModel* model)
@@ -75,15 +85,21 @@ void GameObject::Update()
 	worldRotMat_.rotation = XMMatrixTranspose(worldRotMat_.rotation);
 }
 
-void GameObject::Render(DirectDevice* device)
+void GameObject::Render(DirectDevice* device, XMMATRIX viewMat, XMMATRIX projMat)
 {
-	
-	device->d3dContext_->IASetVertexBuffers(0, 1, &m_3DModel->vertexBuffer_, &stride, &offset);
-	device->d3dContext_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	WorldViewProj_.world = worldRotMat_.world;
+	WorldViewProj_.view = XMMatrixTranspose(viewMat);
+	WorldViewProj_.project = XMMatrixTranspose(projMat);
 
+	device->d3dContext_->IASetVertexBuffers(0, 1, &m_3DModel->vertexBuffer_, &stride, &offset);
+	
 	//Update sub resources
 	device->d3dContext_->UpdateSubresource(m_worldRotateCB, 0, 0, &worldRotMat_, 0, 0);
 	device->d3dContext_->VSSetConstantBuffers(0, 1, &m_worldRotateCB);
+
+	//update domain shader resource
+	device->d3dContext_->UpdateSubresource(m_WorldViewProjCB, 0, 0, &WorldViewProj_, 0, 0);
+	device->d3dContext_->DSSetConstantBuffers(0, 1, &m_WorldViewProjCB);
 
 	device->d3dContext_->Draw(m_totalVertex, 0);
 
@@ -91,8 +107,10 @@ void GameObject::Render(DirectDevice* device)
 
 void GameObject::Relase()
 {
-	if(m_worldRotateCB) m_worldRotateCB ->Release();
+	if(m_worldRotateCB!=nullptr) m_worldRotateCB ->Release();
 	m_worldRotateCB = 0;
+	if (m_WorldViewProjCB != nullptr) m_WorldViewProjCB->Release();
+	m_WorldViewProjCB = 0;
 	m_3DModel = 0;
 };
 

@@ -67,6 +67,8 @@ private:
 	ID3D11VertexShader*			m_deferredVShader;
 	ID3D11PixelShader*			m_deferredPShader;
 	ID3D11PixelShader*			m_finalSquarePS;
+	ID3D11HullShader*			m_hullShader;
+	ID3D11DomainShader*			m_domainShader;
 
 	ID3D11Buffer*				m_LightProperties;
 	ID3D11Buffer*				m_squareVertexBuffer;
@@ -77,6 +79,7 @@ private:
 	UINT						stride = sizeof(Vertex2D);
 	UINT						offset = 0;
 	Vertex2D					windowSquare[6];
+
 	float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 };
 

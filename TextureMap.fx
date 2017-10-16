@@ -10,8 +10,6 @@ Texture2D psResource : register( t0 );
 SamplerState samplerState_ : register( s0 );
 
 
-
-
 struct VS_Input
 {
     float4 pos  : POSITION0;

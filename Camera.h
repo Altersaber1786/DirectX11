@@ -14,16 +14,20 @@ public:
 	void Update(DirectDevice* device);
 	bool Initialize(ID3D11Device* device);
 	ID3D11Buffer** GetPosCB();
+	XMMATRIX viewMatrix;
 
 private:
 	
-	XMMATRIX viewMatrix;
 	XMFLOAT4 position;
-	
+	struct tessFactors
+	{
+		float tessFactor;
+		XMFLOAT3 padding;
+	}tessFact;
 	GameObject*			m_target;
 
-	ID3D11Buffer*	viewCB_;
 	ID3D11Buffer*	camPosCB_;
+	ID3D11Buffer*	tessFactorsCB;
 };
 
 #endif // !CAMERA_H
