@@ -52,7 +52,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR cmdLine
 
 	//Game 
 	Game *game = new Game();
-	if (!game->Initialize(hwnd))
+	if (!game->Initialize(hInstance, hwnd))
 	{
 		MessageBox(hwnd, "Failed to initialize the game!", NULL, 0);
 		delete game;

@@ -4,10 +4,21 @@
 
 Camera::Camera()
 {
+	cam_mode = CAM_MODE_FREE;
 	viewMatrix = XMMatrixIdentity();
-	position = XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f );
+	position = XMFLOAT4( 0.0f, 0.0f, -17.0f, 0.0f );
+	tessFact.tessFactor = 1.0f;
 }
-
+void Camera::SetPosition(float x, float y, float z)
+{
+	position.x = x;
+	position.y = y;
+	position.z = z;
+}
+XMFLOAT4* Camera::GetPosition()
+{
+	return &position;
+}
 bool Camera::Initialize(ID3D11Device* device)
 {
 	D3D11_BUFFER_DESC constDesc;
@@ -33,20 +44,35 @@ bool Camera::Initialize(ID3D11Device* device)
 
 void Camera::Follow(GameObject* target)
 {
+	cam_mode = CAM_MODE_FOLLOW;
 	m_target = target;
 }
 
 void Camera::Update(DirectDevice* device)
 {
-	if (m_target != nullptr)
+	switch (cam_mode)
 	{
-		position.x = m_target->position_.x;
-		//position.y = m_target->position_.y;
-		viewMatrix = XMMatrixLookAtLH(XMLoadFloat4(&position), XMLoadFloat3(&(m_target->position_)), XMLoadFloat3(&up_Y));
+	case CAM_MODE_FREE: break;
+	case CAM_MODE_FOLLOW:
+	{
+		if (m_target != nullptr)
+		{
+			position.x = m_target->position_.x;
+			//position.y = m_target->position_.y;
+			viewMatrix = XMMatrixLookAtLH(XMLoadFloat4(&position), XMLoadFloat3(&(m_target->position_)), XMLoadFloat3(&up_Y));
+			float distance = static_cast<float>(sqrt(pow((position.x - m_target->position_.x), 2) + pow((position.y - m_target->position_.y), 2) + pow((position.z - m_target->position_.z), 2)));
+			tessFact.tessFactor = (20.0f / distance);
+		}
+		break;
 	}
+	case CAM_MODE_ARCBALL: {
+		viewMatrix = XMMatrixLookAtLH(XMLoadFloat4(&position), XMLoadFloat3(&(center)), XMLoadFloat3(&up_Y));
+		break;
+	        }
+	}
+	
 	device->d3dContext_->UpdateSubresource(camPosCB_, 0, 0, &position, 0, 0);
-	float distance = static_cast<float>(sqrt(pow((position.x - m_target->position_.x), 2) + pow((position.y - m_target->position_.y), 2) + pow((position.z - m_target->position_.z), 2)));
-	tessFact.tessFactor = (20.0f / distance);
+	
 	device->d3dContext_->UpdateSubresource(tessFactorsCB, 0, 0, &tessFact, 0, 0);
 	device->d3dContext_->HSSetConstantBuffers(0, 1, &tessFactorsCB);
 }

@@ -70,7 +70,9 @@
     <IncludePath>C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LibraryPath>C:\Program Files %28x86%29\Windows Kits\10\Lib\10.0.15063.0\um\x64;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x64;$(LibraryPath)</LibraryPath>
@@ -96,12 +98,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>E:\Documents\Visual Studio 2013\Projects\BlankWindow\DirectXTK-master\Inc;E:\Documents\Visual Studio 2013\Projects\BlankWindow\FX11-master\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.15063.0\um;E:\Documents\Visual Studio 2013\Projects\BlankWindow\DirectXTK-master\Inc;E:\Documents\Visual Studio 2013\Projects\BlankWindow\FX11-master\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;D3DCompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;D3DCompiler.lib;dinput8.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -140,6 +142,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DirectDevice.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameInput.cpp" />
     <ClCompile Include="GameMaterial.cpp" />
     <ClCompile Include="GameModel.cpp" />
     <ClCompile Include="GameTime.cpp" />
@@ -153,6 +156,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="DirectDevice.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="GameInput.h" />
     <ClInclude Include="GameMaterial.h" />
     <ClInclude Include="GameModel.h" />
     <ClInclude Include="GameTime.h" />

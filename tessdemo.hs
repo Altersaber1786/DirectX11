@@ -40,7 +40,7 @@ HS_CONSTANT_DATA_OUTPUT ConstantsHS()
 
 [outputtopology("triangle_cw")] 
 [outputcontrolpoints(3)] 
-[maxtessfactor(7.0f)]
+[maxtessfactor(10.0f)]
 [patchconstantfunc("ConstantsHS")] 
 
 HS_CONTROL_POINT_OUTPUT HS(InputPatch<VS_CONTROL_POINT_OUTPUT, 3> inputPatch, uint uCPID : SV_OutputControlPointID, uint patchId : SV_PrimitiveID )

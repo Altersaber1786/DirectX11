@@ -2,7 +2,7 @@
 
 LightShader::LightShader()
 {
-	LightSource light[3];
+	PointLight light[3];
 
 	
 	light[0].position = XMFLOAT4(0.0f, 0.0f, 12.0f, 0.0f);
@@ -11,10 +11,9 @@ LightShader::LightShader()
 	light[1].intensity = XMFLOAT4(0.2f, 0.6f, 0.6f, 1.0f);
 	light[2].position = XMFLOAT4(5.0f, -5.0f, 0.0f, 0.0f);
 	light[2].intensity = XMFLOAT4(0.8f, 0.4f, 0.6f, 1.0f);
-	m_lightSources.push_back(light[0]);
-	m_lightSources.push_back(light[1]);
-	m_lightSources.push_back(light[2]);
-	m_totalLights = static_cast<UINT>(m_lightSources.size());
+	m_LightSources.pointLights.push_back(light[0]);
+	m_LightSources.pointLights.push_back(light[1]);
+	m_LightSources.pointLights.push_back(light[2]);
 }
 bool LightShader::CompileD3DShader(LPCWSTR filePath, LPCSTR entry, LPCSTR shaderModel, ID3DBlob** buffer)
 {	
@@ -432,24 +431,30 @@ void LightShader::PreparePacking(ID3D11DeviceContext* context)
 
 void LightShader::RenderDeferred(ID3D11DeviceContext* context)
 {
+	UINT totalDirLights		=	static_cast<UINT>(m_LightSources.dirLights.size());
+	UINT totalPointLights	=	static_cast<UINT>(m_LightSources.pointLights.size());
+	UINT totalSpotLights	=	static_cast<UINT>(m_LightSources.spotLights.size());
+	UINT totalCapsuleLights	=	static_cast<UINT>(m_LightSources.capsuleLights.size());
+
 	context->IASetInputLayout(m_squareInputLayout);
 	context->IASetVertexBuffers(0, 1, &m_squareVertexBuffer, &stride, &offset);
 	context->VSSetShader(m_deferredVShader, 0, 0);
 	context->HSSetShader(NULL, 0, 0);
 	context->DSSetShader(NULL, 0, 0);
-	context->PSSetShader(m_deferredPShader, 0, 0);
+	
 	context->PSSetSamplers(0, 1, &m_PointSampler);
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	int j = -1, k = G_BUFFER_COUNT - 2;
 	context->PSSetShaderResources(0, 4, m_ShaderResourceViews);
-	for (UINT i = 0; i < m_totalLights; i++)
+	context->PSSetShader(m_deferredPShader, 0, 0);
+	for (UINT i = 0; i < totalPointLights; i++)
 	{
 		j = j*(-1);
 		k = k + j;
 		context->OMSetRenderTargets(1, &m_RenderTargetViews[k], 0);
 		context->ClearRenderTargetView(m_RenderTargetViews[k], clearColor);
 		context->PSSetShaderResources(4, 1, &m_ShaderResourceViews[k + (j*-1)]);
-		context->UpdateSubresource(m_LightProperties, 0, 0, &m_lightSources[i], 0, 0);
+		context->UpdateSubresource(m_LightProperties, 0, 0, &m_LightSources.pointLights[i], 0, 0);
 		context->PSSetConstantBuffers(0, 1, &m_LightProperties);
 		context->Draw(6, 0);
 	}

@@ -173,14 +173,16 @@ void GraphicRenderer::SetBuffersNewSize()
 	m_device->getWindowSize();
 	windowWidth = m_device->windowWidth;
 	windowHeight = m_device->windowHeight;
-	m_backBufferTarget->Release();
-	if (FAILED(m_device->swapChain_->ResizeBuffers(1, windowWidth, windowHeight, DXGI_FORMAT_UNKNOWN, NULL)))
+	if (windowWidth > 0 && windowHeight > 0)
 	{
-		MessageBox(NULL, "Failed to resize the buffer", NULL, NULL);
-	};
-	CreateViewsDependWindowSize();
-	m_deferredLighting->InitGBuffers(m_device->d3dDevice_);
-
+		m_backBufferTarget->Release();
+		if (FAILED(m_device->swapChain_->ResizeBuffers(1, windowWidth, windowHeight, DXGI_FORMAT_UNKNOWN, NULL)))
+		{
+			MessageBox(NULL, "Failed to resize the buffer", NULL, NULL);
+		};
+		CreateViewsDependWindowSize();
+		m_deferredLighting->InitGBuffers(m_device->d3dDevice_);
+	}
 }
 
 void GraphicRenderer::Update()
@@ -207,7 +209,7 @@ void GraphicRenderer::EndScene()
 void GraphicRenderer::Render()
 {
 	BeginScene();
-	m_device->d3dContext_->RSSetState(m_RSWireFrame);
+	m_device->d3dContext_->RSSetState(m_RSNormal);
 	m_device->d3dContext_->OMSetDepthStencilState(m_DepthEnableState, 1);
 
 	for (UINT i = 0; i < totalMaterials; i++)

@@ -13,6 +13,7 @@ public:
 	XMFLOAT3	position_;
 	XMFLOAT3	rotation_;
 	XMFLOAT3	scale_;
+	float		speed;
 
 	GameObject();
 	~GameObject();

@@ -44,7 +44,7 @@ bool GameObject::InitWorldCB(ID3D11Device* device)
 		MessageBox(NULL, "Failed to create matrices const buffer", NULL, NULL);
 		return false;
 	}
-
+	
 	return true;
 }
 void GameObject::Set3DModel(GameModel* model)

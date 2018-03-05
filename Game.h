@@ -5,27 +5,30 @@
 #include "GameObject.h"
 #include "Camera.h"
 #include "GraphicRenderer.h"
+#include "GameInput.h"
 #include <vector>
-
-class Game
+#include "GameTime.h"
+class Game: public GameInput
 {
 public:
-	bool Initialize(HWND hwnd);
+	bool Initialize(HINSTANCE hInst,HWND hwnd);
 	bool LoadContent();
 	void Update();
 	void Render();
 	Game();
 	~Game();
-	void Relase();
 	GraphicRenderer* m_Graphic;
+
+protected:
+	GameObject*		Player;
+	GameObject*		Player2;
+	Camera*			cam_1;
+
 private:
 	int totalMaterials;
 	int totalModels;
-	GameObject*		Player;
-	GameObject*		Player2;
-
-	Camera*			cam_1;
 	
+	GameTime*		m_timeCounter;
 };
 
 #endif

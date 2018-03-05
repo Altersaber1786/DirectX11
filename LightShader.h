@@ -5,9 +5,18 @@
 #include <vector>
 #include "GameMaterial.h"
 
-#define G_BUFFER_COUNT 6
+#define G_BUFFER_COUNT	6
+#define	TOTAL_LIGHT_TYPES	4;
 
 using namespace DirectX;
+
+enum LIGHT_TYPE
+{
+	LIGHT_TYPE_DIRECTIONAL	=	0,
+	LIGHT_TYPE_POINT		=	1,
+	LIGHT_TYPE_SPOT			=	2,
+	LIGHT_TYPE_CAPSULE		=	3
+};
 
 class LightShader
 {
@@ -37,23 +46,59 @@ private:
 		XMFLOAT4	DiffuseDirection;
 	} diffAmb;
 	
-	struct LightSource
+	struct DirectionalLight
 	{
-		XMFLOAT4 position;
-		XMFLOAT4 intensity;
+		XMFLOAT4	direction;
+		XMFLOAT4	intensity;
 	};
+	struct PointLight
+	{
+		XMFLOAT4	position;
+		XMFLOAT4	intensity;
+	};
+	struct SpotLight
+	{
+		XMFLOAT3	position;
+		float		rangeRCP;
+		XMFLOAT3	direction;
+		float		cosOuterCone;
+		XMFLOAT3	intensity;
+		float		innerConeRCP;
+	};
+	struct CapsuleLight
+	{
+		XMFLOAT3	position;
+		float		rangeRCP;
+		XMFLOAT3	direction;
+		float		len;
+		XMFLOAT4	intensity;
+	};
+
+	struct LightSource
+	
+	{
+		std::vector<DirectionalLight>	dirLights;
+		std::vector<PointLight>			pointLights;
+		std::vector<SpotLight>			spotLights;
+		std::vector<CapsuleLight>		capsuleLights;
+	};
+
 
 	struct Vertex2D
 	{
-		XMFLOAT3 position;
-		XMFLOAT2 texcoord;
+		XMFLOAT3	position;
+		XMFLOAT2	texcoord;
 	};
-
+	
 private:
-
+	//Gbuffer views
 	ID3D11Texture2D*			m_GBuffers[G_BUFFER_COUNT];
 	ID3D11ShaderResourceView*	m_ShaderResourceViews[G_BUFFER_COUNT];
 	ID3D11RenderTargetView*		m_RenderTargetViews[G_BUFFER_COUNT];
+
+	//Unordered access view
+	//ID3D11UnorderedAccessView*	m_UAV;
+
 	ID3D11InputLayout*			m_modelInputLayout;
 	ID3D11InputLayout*			m_squareInputLayout;
 	ID3D11SamplerState*			m_PointSampler;
@@ -74,11 +119,11 @@ private:
 	ID3D11Buffer*				m_squareVertexBuffer;
 	ID3D11Buffer*				m_diffAmbCB;
 
-	std::vector<LightSource>	m_lightSources;
-	UINT						m_totalLights;
+	
 	UINT						stride = sizeof(Vertex2D);
 	UINT						offset = 0;
 	Vertex2D					windowSquare[6];
+	LightSource					m_LightSources;
 
 	float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 };
