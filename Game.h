@@ -22,6 +22,8 @@ public:
 protected:
 	GameObject*		Player;
 	GameObject*		Player2;
+	GameObject*		Player3;
+	GameObject*		Player4;
 	Camera*			cam_1;
 
 private:
