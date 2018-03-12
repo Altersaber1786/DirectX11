@@ -12,13 +12,26 @@ bool GraphicRenderer::LoadModelList()
 	if (!mat01->LoadContent(m_device, L"Rengeg.DDS"))
 		return false;
 
+	GameMaterial* mat02 = new GameMaterial();
+	if (!mat02->LoadContent(m_device, L"./world/world5400x2700.DDS"))
+		return false;
+
 	GameModel* sphere = new GameModel();
 	if (!sphere->LoadGeometry(m_device, "Sphere.obj"))
 		return false;
+	GameModel* Icosahedron = new GameModel();
+	if (!Icosahedron->LoadGeometry(m_device, "./Models and Textures/wall.obj"))
+		return false;
+	GameModel* capsule = new GameModel();
+	if (!capsule->LoadGeometry(m_device, "./world/World.obj"))
+		return false;
 	ModelList.push_back(sphere);
+	ModelList.push_back(Icosahedron);
+	ModelList.push_back(capsule);
 	totalModels = static_cast<int>(ModelList.size());
 
 	MaterialList.push_back(mat01);
+	MaterialList.push_back(mat02);
 	totalMaterials = static_cast<int>(MaterialList.size());
 	return true;
 }
@@ -31,7 +44,7 @@ bool GraphicRenderer::LoadObject(GameObject* Object)
 		if (Object->modelIndex == i)
 		{			
 			Object->Set3DModel(ModelList[i]);
-			MaterialList[0]->pushObject(Object);
+			MaterialList[i-1]->pushObject(Object);
 			return true;
 		};
 	}
@@ -110,6 +123,7 @@ bool GraphicRenderer::Initialize(HWND hwnd)
 	depthDisabledStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 	m_device->d3dDevice_->CreateDepthStencilState(&depthDisabledStencilDesc, &m_DepthDisableState);
 
+	D3D11_BLEND_DESC transparentDesc;
 
 	if (!CreateViewsDependWindowSize())
 	{
@@ -146,7 +160,7 @@ bool GraphicRenderer::CreateViewsDependWindowSize()
 	};
 
 	float AspectRatio = static_cast<float>(windowWidth) / static_cast<float>(windowHeight);
-	projMatrix_ = XMMatrixPerspectiveFovLH(XM_PI / 4.0f, AspectRatio, 0.1f, 100.0f);
+	projMatrix_ = XMMatrixPerspectiveFovLH(XM_PI / 4.0f, AspectRatio, 0.1f, 600.0f);
 	
 	viewport.Width = static_cast<float>(windowWidth);
 	viewport.Height = static_cast<float>(windowHeight);
@@ -205,11 +219,18 @@ void GraphicRenderer::EndScene()
 	m_device->swapChain_->Present(0, 0);
 
 }
+void GraphicRenderer::SetNormalState()
+{
+	m_device->d3dContext_->RSSetState(m_RSNormal);
+}
 
+void GraphicRenderer::SetWireFrameState()
+{
+	m_device->d3dContext_->RSSetState(m_RSWireFrame);
+}
 void GraphicRenderer::Render()
 {
 	BeginScene();
-	m_device->d3dContext_->RSSetState(m_RSNormal);
 	m_device->d3dContext_->OMSetDepthStencilState(m_DepthEnableState, 1);
 
 	for (UINT i = 0; i < totalMaterials; i++)

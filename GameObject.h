@@ -35,11 +35,10 @@ private:
 	unsigned int stride = sizeof(MeshLoader::Vertex);
 	unsigned int offset = 0;
 	
-	struct worldRotMat
-	{
-		XMMATRIX	world;
-		XMMATRIX	rotation;
-	}worldRotMat_;
+	
+
+	XMMATRIX	rotationMat;
+
 	struct WorldViewProj
 	{
 		XMMATRIX	world;
@@ -48,7 +47,7 @@ private:
 	}WorldViewProj_;
 
 	GameModel*					m_3DModel;
-	ID3D11Buffer*				m_worldRotateCB;
+	ID3D11Buffer*				m_RotateCB;
 	ID3D11Buffer*				m_WorldViewProjCB;
 };
 

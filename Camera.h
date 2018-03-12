@@ -10,7 +10,7 @@ public:
 		CAM_MODE_FREE		=	0,
 		CAM_MODE_FOLLOW		=	1,
 		CAM_MODE_ARCBALL	=	2
-	};
+	}CAMERA_MODE;
 
 	Camera();
 	~Camera();
@@ -38,7 +38,6 @@ private:
 	GameObject*			m_target;
 
 	ID3D11Buffer*	camPosCB_;
-	ID3D11Buffer*	tessFactorsCB;
 };
 
 #endif // !CAMERA_H

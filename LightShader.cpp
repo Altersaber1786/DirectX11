@@ -2,18 +2,18 @@
 
 LightShader::LightShader()
 {
-	PointLight light[3];
+	PointLight light[1];
 
 	
 	light[0].position = XMFLOAT4(0.0f, 0.0f, 12.0f, 0.0f);
-	light[0].intensity = XMFLOAT4(0.6f, 0.2f, 0.6f, 1.0f);
-	light[1].position = XMFLOAT4(5.0f, 5.0f, 12.0f, 0.0f);
-	light[1].intensity = XMFLOAT4(0.2f, 0.6f, 0.6f, 1.0f);
-	light[2].position = XMFLOAT4(5.0f, -5.0f, 0.0f, 0.0f);
-	light[2].intensity = XMFLOAT4(0.8f, 0.4f, 0.6f, 1.0f);
+	light[0].intensity = XMFLOAT4(0.6f, 0.6f, 0.6f, 1.0f);
+	//light[1].position = XMFLOAT4(5.0f, 5.0f, 12.0f, 0.0f);
+	//light[1].intensity = XMFLOAT4(0.2f, 0.6f, 0.6f, 1.0f);
+	//light[2].position = XMFLOAT4(5.0f, -5.0f, 0.0f, 0.0f);
+	//light[2].intensity = XMFLOAT4(0.8f, 0.4f, 0.6f, 1.0f);
 	m_LightSources.pointLights.push_back(light[0]);
-	m_LightSources.pointLights.push_back(light[1]);
-	m_LightSources.pointLights.push_back(light[2]);
+	//m_LightSources.pointLights.push_back(light[1]);
+	//m_LightSources.pointLights.push_back(light[2]);
 }
 bool LightShader::CompileD3DShader(LPCWSTR filePath, LPCSTR entry, LPCSTR shaderModel, ID3DBlob** buffer)
 {	

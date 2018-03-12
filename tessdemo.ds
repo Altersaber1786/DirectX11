@@ -13,7 +13,7 @@ struct HS_CONSTANT_DATA_OUTPUT
 
 struct HS_CONTROL_POINT_OUTPUT
 {
-	float3 vWorldPos : POSITION;
+	float3 vPos : POSITION;
 	float2 vTexCoord : TEXCOORD0;
 	float3 vNormal : NORMAL;
 };
@@ -26,14 +26,73 @@ struct DS_OUTPUT
 	float3 vWorldPos : POSITION;
 };
 
-[domain("tri")]
+float3 powfoddf3(float3 a, float x)
+{
+	float3 result = float3(0.0f, 0.0f, 0.0f);
+	if(a.x >= 0)
+		result.x = pow(a.x, x);
+	else
+		result.x = -pow(abs(a.x), x);
+	if(a.y >= 0)
+		result.y = pow(a.y, x);
+	else
+		result.y = -pow(abs(a.y), x);
+	
+	if(a.z >= 0)
+		result.z = pow(a.z, x);
+	else
+		result.z = -pow(abs(a.z), x);
+	
+	
+	return result;
+}
+struct TriWorldPos
+{
+	float3 vPos: POSITION;
+};
 
+[domain("tri")]
 DS_OUTPUT DS( HS_CONSTANT_DATA_OUTPUT input, float3 BarycentricCoordinates : SV_DomainLocation, const OutputPatch<HS_CONTROL_POINT_OUTPUT, 3> TrianglePatch )
 {
     DS_OUTPUT Out;
-	Out.vWorldPos = BarycentricCoordinates.x * TrianglePatch[0].vWorldPos + 
-	BarycentricCoordinates.y * TrianglePatch[1].vWorldPos + 
-	BarycentricCoordinates.z * TrianglePatch[2].vWorldPos;
+	
+	//Cubic bezier triangle
+	TriWorldPos TriWorld[3];
+		TriWorld[0].vPos = mul(float4(TrianglePatch[0].vPos, 1.0f), worldMat);
+		TriWorld[1].vPos = mul(float4(TrianglePatch[1].vPos, 1.0f), worldMat);
+		TriWorld[2].vPos = mul(float4(TrianglePatch[2].vPos, 1.0f), worldMat);
+	float3 w12 = dot(TriWorld[1].vPos - TriWorld[0].vPos, TrianglePatch[0].vNormal);
+	float3 w21 = dot(TriWorld[0].vPos - TriWorld[1].vPos, TrianglePatch[1].vNormal);
+	float3 w13 = dot(TriWorld[2].vPos - TriWorld[0].vPos, TrianglePatch[0].vNormal);
+	float3 w31 = dot(TriWorld[0].vPos - TriWorld[2].vPos, TrianglePatch[2].vNormal);
+	float3 w23 = dot(TriWorld[2].vPos - TriWorld[1].vPos, TrianglePatch[1].vNormal);
+	float3 w32 = dot(TriWorld[1].vPos - TriWorld[2].vPos, TrianglePatch[2].vNormal);
+	
+	float3 b300 = TriWorld[0].vPos;
+	float3 b030 = TriWorld[1].vPos;
+	float3 b003 = TriWorld[2].vPos;
+	float3 b210 = (2*TriWorld[0].vPos + TriWorld[1].vPos - w12*TrianglePatch[0].vNormal)/3.0f;
+	float3 b120 = (2*TriWorld[1].vPos + TriWorld[0].vPos - w21*TrianglePatch[1].vNormal)/3.0f;
+	float3 b021 = (2*TriWorld[1].vPos + TriWorld[2].vPos - w23*TrianglePatch[1].vNormal)/3.0f;
+	float3 b012 = (2*TriWorld[2].vPos + TriWorld[1].vPos - w32*TrianglePatch[2].vNormal)/3.0f;
+	float3 b102 = (2*TriWorld[2].vPos + TriWorld[0].vPos - w31*TrianglePatch[2].vNormal)/3.0f;
+	float3 b201 = (2*TriWorld[0].vPos + TriWorld[2].vPos - w13*TrianglePatch[0].vNormal)/3.0f;
+	float3 E = (b210 + b120 + b021 + b012 + b102 + b201)/6.0f;
+	float3 V = (TriWorld[0].vPos + TriWorld[1].vPos + TriWorld[2].vPos)/3.0f;
+	float3 b111 = E + (E-V)/2.0f;
+	
+	
+	
+	Out.vWorldPos = BarycentricCoordinates.y*BarycentricCoordinates.y*BarycentricCoordinates.y*b030
+					+ 3*b120*BarycentricCoordinates.x*BarycentricCoordinates.y*BarycentricCoordinates.y
+					+ 3*b021*BarycentricCoordinates.y*BarycentricCoordinates.y*BarycentricCoordinates.z
+					+ 3*b210*BarycentricCoordinates.x*BarycentricCoordinates.x*BarycentricCoordinates.y
+					+ 6*b111*BarycentricCoordinates.x*BarycentricCoordinates.y*BarycentricCoordinates.z
+					+ 3*b012*BarycentricCoordinates.y*BarycentricCoordinates.z*BarycentricCoordinates.z
+					+ b300*BarycentricCoordinates.x*BarycentricCoordinates.x*BarycentricCoordinates.x
+					+ 3*b201*BarycentricCoordinates.x*BarycentricCoordinates.x*BarycentricCoordinates.z
+					+ 3*b102*BarycentricCoordinates.x*BarycentricCoordinates.z*BarycentricCoordinates.z
+					+ b003*BarycentricCoordinates.z*BarycentricCoordinates.z*BarycentricCoordinates.z;
 	
     Out.vTexCoord = BarycentricCoordinates.x * TrianglePatch[0].vTexCoord +  
 	BarycentricCoordinates.y * TrianglePatch[1].vTexCoord + 
@@ -43,8 +102,8 @@ DS_OUTPUT DS( HS_CONSTANT_DATA_OUTPUT input, float3 BarycentricCoordinates : SV_
 	BarycentricCoordinates.y * TrianglePatch[1].vNormal + 
 	BarycentricCoordinates.z * TrianglePatch[2].vNormal;
 	
-	float4 clipSpacePos = float4(Out.vWorldPos, 1.0f);
-	Out.vCSPos = mul(clipSpacePos, viewMat);
+	Out.vCSPos = float4(Out.vWorldPos, 1.0f);
+	Out.vCSPos = mul(Out.vCSPos, viewMat);
 	Out.vCSPos = mul(Out.vCSPos, projMat);
 	
 	return Out;   

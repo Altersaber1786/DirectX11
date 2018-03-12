@@ -28,16 +28,16 @@ bool Game::Initialize(HINSTANCE hInst, HWND hwnd)
 bool Game::LoadContent()
 {
 	Player = new GameObject();
-	Player->Initialize(XMFLOAT3(-5.0f, 0.0f, 0.0f),
+	Player->Initialize(XMFLOAT3(0.0f, 1.0f, 4.0f),
 		XMFLOAT3(0.0f, 0.0f, 0.0f),
 		XMFLOAT3(1.0f, 1.0f, 1.0f));
-	Player->modelIndex = 0;
-	Player->speed = 0.001f;
+	Player->modelIndex = 2;
+	Player->speed = 0.01f;
 	Player2 = new GameObject();
 	Player2->Initialize(XMFLOAT3(0.0f, 0.0f, 0.0f),
 		XMFLOAT3(0.0f, 0.0f, 0.0f),
 		XMFLOAT3(1.0f, 1.0f, 1.0f));
-	Player2->modelIndex = 0;
+	Player2->modelIndex = 1;
 	
 	Player3 = new GameObject();
 	Player3->Initialize(XMFLOAT3(6.0f, 0.0f, 0.0f),
@@ -56,14 +56,11 @@ bool Game::LoadContent()
 
 	m_Graphic->LoadObject(Player);
 	m_Graphic->LoadObject(Player2);
-	m_Graphic->LoadObject(Player3);
-	m_Graphic->LoadObject(Player4);
+	//m_Graphic->LoadObject(Player3);
+	//m_Graphic->LoadObject(Player4);
 	m_Graphic->LoadCamera(cam_1);
 
 	//cam_1->Follow(Player);
-	MouseX = Player->position_.x;
-	MouseY = Player->position_.y;
-	MouseZ = Player->position_.z;
 
 	return true;
 }
@@ -87,6 +84,19 @@ void Game::Update()
 	if (KEY_DOWN(m_KeyboardState, DIK_D))
 	{
 		Player->position_.x += (Player->speed)*(m_timeCounter->GetTimeElapsed());
+	}
+	if (KEY_DOWN(m_KeyboardState, DIK_R))
+	{
+		m_Graphic->SetNormalState();
+	}
+	if (KEY_DOWN(m_KeyboardState, DIK_F))
+	{
+		m_Graphic->SetWireFrameState();
+	}
+	if (KEY_DOWN(m_KeyboardState, DIK_E))
+	{
+		Player->rotation_.x += (Player->speed)*(m_timeCounter->GetTimeElapsed())*0.1f;
+		Player->rotation_.y += (Player->speed)*(m_timeCounter->GetTimeElapsed())*0.1f;
 	}
 	if (BUTTON_DOWN(m_mouseState, 0))
 	{

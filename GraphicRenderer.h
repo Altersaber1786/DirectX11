@@ -22,6 +22,8 @@ public:
 	bool CreateViewsDependWindowSize();
 	bool LoadCamera(Camera* cam);
 	bool LoadObject(GameObject* Object);
+	void SetNormalState();
+	void SetWireFrameState();
 	XMMATRIX	projMatrix_;
 private:
 

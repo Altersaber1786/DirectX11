@@ -4,190 +4,127 @@
 #include <string>
 #include <sstream>
 
+
 MeshLoader::MeshLoader()
 {
 	totalVetices = 0;
 }
 
-bool inline isFloat(char* myString)
-{
-	std::istringstream iss(myString);
-	float f;
-	iss >> std::noskipws >> f; // noskipws considers leading whitespace invalid
-	 // Check the entire string was consumed and if either failbit or badbit is set
-	return iss.eof() && !iss.fail();
-}
 
-float MeshLoader::getFloat(char* buffer, int& startIndex, int& endIndex)
+float MeshLoader::getFloat(std::string &buffer, int &startIndex)
 {
-	
-	int count = endIndex - startIndex + 1;
-	char* temp = new char[count];
-	for (int i = 0; i < count - 1; i++)
-	{
-		temp[i] = buffer[startIndex];
+	while (buffer[startIndex] == 32)
 		startIndex++;
-	}
-	temp[count - 1] = '\0';
-	if (!isFloat(temp))
-	{
-		std::string message = std::to_string(startIndex);
-		MessageBox(NULL, (LPCSTR)&message, "Invalid float value", NULL);
-		return 0;
-	}
-	startIndex++;
-	endIndex = startIndex + 1;
-	while (buffer[endIndex] != ' '&&buffer[endIndex] != '\n'&&buffer[endIndex] != '\0')
-	{
-		endIndex++;
-	}
-	return static_cast<float> (atof(temp));
+	return atof(buffer.c_str() + startIndex);
 }
 
-MeshLoader::Indices getIndices(char* buffer, int& startIndex, int& endIndex)
+MeshLoader::Indices MeshLoader::getIndices(std::string &buffer, int &startIndex)
 {
+	while (buffer[startIndex] == 32)
+		startIndex++;
 	MeshLoader::Indices index;
-	index.vertexId = 0;
-	index.textureId = 0;
-	index.normalId = 0;
-	
-
-	int count = endIndex - startIndex;
-	char* temp = new char[count];
-	for (int i = 0; i < count ; i++)
-	{
-		temp[i] = buffer[startIndex];
+	index.vertexId = atoi(buffer.c_str() + startIndex);
+	while (buffer[startIndex] != '/')
 		startIndex++;
-	}
 	startIndex++;
-	endIndex = startIndex + 1;
-	while (buffer[endIndex] != ' '&&buffer[endIndex] != '\n'&&buffer[endIndex] != '\0')
+	if (buffer[startIndex] == '/')
 	{
-		endIndex++;
+		index.textureId = 1;
 	}
-	int i = 0;
-	while (temp[i] != '/')
+	else
+		index.textureId = atoi(buffer.c_str() + startIndex);
+
+	while (buffer[startIndex] != '/')
+		startIndex++;
+	startIndex++;
+	if (buffer[startIndex] == 32 || buffer[startIndex] == '\0')
 	{
-		index.vertexId = index.vertexId*10 + temp[i] - '0';
-		i++;
-		if (i == count)
-		{
-			if (index.textureId == 0) index.textureId = 1;
-			if (index.normalId == 0) index.normalId = 1;
-			return index;
-		}
+		index.normalId = 1;
 	}
-	i++;
-	while (temp[i] != '/')
-	{
-		index.textureId = index.textureId * 10 + temp[i] - '0';
-		i++;
-		if (i == count)
-		{
-			if (index.textureId == 0) index.textureId = 1;
-			if (index.normalId == 0) index.normalId = 1;
-			return index;
-		}
-	}
-	i++;
-	while (i < count)
-	{
-		index.normalId = index.normalId * 10 + temp[i] - '0';
-		i++;
-	}
-	if (index.textureId == 0) index.textureId = 1;
-	if (index.normalId == 0) index.normalId = 1;
+	else
+	index.normalId = atoi(buffer.c_str() + startIndex);
+	
 	return index;
 }
 
-int MeshLoader::getToken(char* buffer, int& startIndex, int& endIndex)
+int MeshLoader::getToken(std::string& buffer)
 {
-	if (buffer[startIndex] == '\n')
+	if (buffer[0] == '\0')
 	{
-		startIndex++;
 		return TOKEN_EMPTY_LINE;
 	}
-	int count = endIndex - startIndex;
-	char* temp = new char[count];
-	for (int i = 0; i < count; i++)
+	
+	if (buffer[0] == '#')
 	{
-		temp[i] = buffer[startIndex];
-		startIndex++;
-	}
-
-	startIndex++;
-	endIndex = startIndex + 1;
-	char c = buffer[startIndex];
-	while (buffer[endIndex] != ' '&&buffer[endIndex] != '\n'&&buffer[endIndex] != '\0')
-	{
-		endIndex++;
-	}
-	if (temp[0] == '#')
-	{
-		
-		delete []temp;
 		return TOKEN_HASH;
 	}
-
-	if (temp[0] == 'v')
+	if (buffer[0] == 'v')
 	{
-		if (count == 1)
+		if (buffer[1] == ' ')
 		{
-			delete []temp;
 			return TOKEN_V;
 		}
-		if (temp[1] == 't')
+		if (buffer[1] == 't')
 		{
-			delete []temp;
 			return TOKEN_VT;
 		}
-		if (temp[1] == 'n')
+		if (buffer[1] == 'n')
 		{
-			delete[] temp;
 			return TOKEN_VN;
 		}
+		return TOKEN_INVALID;
 	}
-	if (temp[0] == 'f')
+	if (buffer[0] == 'f')
 	{
-		delete[] temp;
-		return TOKEN_F;
+		int i = 0;
+		int faceCount = 0;
+		while (buffer[i] != '\0')
+		{
+			if (buffer[i] == '/')
+			{
+				faceCount++;
+			}
+			i++;
+		}
+		if(faceCount == 6)
+		{ 
+			return TOKEN_F3;
+		}
+		else if(faceCount == 8)
+		{
+			return TOKEN_F4;
+		}
+		else
+		{
+			return TOKEN_INVALID;
+		}
 	}
 	
-	if (temp[0] == 'g')
+	if (buffer[0] == 'g')
 	{
-		delete[] temp;
 		return TOKEN_G;
 	}
-	if (temp[0] == 's')
+	if (buffer[0] == 's')
 	{
-		delete[] temp;
 		return TOKEN_S;
 	}
-	if (count == 6)
+	if (buffer[0] == 'o')
 	{
-		int x = 0;
-		for (int i = 0; i < count; i++)
-		{
-			if (temp[i] == mtllib[i]) x++;
-		}
-		if(x==count)
-		{
-		delete[] temp;
-		return TOKEN_MTLLIB;
-	    }
-		x = 0;
-		for (int i = 0; i < count; i++)
-		{
-			if (temp[i] == usemtl[i]) x++;
-		}
-		if (x == count)
-		{
-			delete[] temp;
-			return TOKEN_USEMTL;
-		}
+		return TOKEN_O;
 	}
-
-	delete[] temp;	
+	if (buffer[1] != 32)
+	{
+		int v = 0x0;
+		for (int i = 0; i < 6; i++)
+		{
+			int x = buffer[i];
+			v += x << i;
+		}
+		if (v == 6453)
+			return TOKEN_MTLLIB;
+		if (v == 6935)
+			return TOKEN_USEMTL;
+	}
 	return TOKEN_INVALID;
 }
 
@@ -196,8 +133,8 @@ bool MeshLoader::LoadMeshFromOBJ(char* filename, DirectDevice* device, ID3D11Buf
 	std::vector <XMFLOAT3> vertices;
 	std::vector <XMFLOAT3> normals;
 	std::vector <XMFLOAT2> texcoords;
-	std::vector <Face> faces;
-	int startIndex =0,  endIndex = 1;
+	std::vector <TriFace> Trifaces;
+	int startIndex = 0;
 	int fileSize = 0;
 
 	std::ifstream fileStream;
@@ -212,90 +149,106 @@ bool MeshLoader::LoadMeshFromOBJ(char* filename, DirectDevice* device, ID3D11Buf
 	if (fileSize <= 0) 
 		return false;
 
-	char *buffer = new char[fileSize];
-	if (buffer == 0) 
-		return false;
-	memset(buffer, '\0', fileSize);
+	std::string buffer;
 
-	fileStream.read(buffer, fileSize);
-	fileStream.close();
-	while (endIndex < fileSize)
+	UINT lineCount = 0; 
+	while (fileStream.good())
 	{
-		
-		if (buffer[endIndex] == ' ')
-		{
-
-			switch (getToken(buffer, startIndex, endIndex))
+		startIndex = 0;
+		lineCount++;
+		getline(fileStream, buffer);
+			switch (getToken(buffer))
 			{
 			case TOKEN_V:
-			  {
+			{
 				XMFLOAT3 temp;
-				temp.x = getFloat(buffer, startIndex, endIndex);
-				temp.y = getFloat(buffer, startIndex, endIndex);
-				temp.z = getFloat(buffer, startIndex, endIndex);
+				while (buffer[startIndex] != 32)startIndex++;
+				temp.x = getFloat(buffer, startIndex);
+				while (buffer[startIndex] != 32)startIndex++;
+				temp.y = getFloat(buffer, startIndex);
+				while (buffer[startIndex] != 32)startIndex++;
+				temp.z = getFloat(buffer, startIndex);
 				vertices.push_back(temp);
 				break;
-			  }
+			}
 			case TOKEN_VN:
-			  {
+			{
 				XMFLOAT3 temp;
-				temp.x = getFloat(buffer, startIndex, endIndex);
-				temp.y = getFloat(buffer, startIndex, endIndex);
-				temp.z = getFloat(buffer, startIndex, endIndex);
+				while (buffer[startIndex] != 32)startIndex++;
+				temp.x = getFloat(buffer, startIndex);
+				while (buffer[startIndex] != 32)startIndex++;
+				temp.y = getFloat(buffer, startIndex);
+				while (buffer[startIndex] != 32)startIndex++;
+				temp.z = getFloat(buffer, startIndex);
 				normals.push_back(temp);
 				break;
-			  }
+			}
 			case TOKEN_VT:
-			  {
+			{
 				XMFLOAT2 temp;
-				temp.x = getFloat(buffer, startIndex, endIndex);
-				temp.y = getFloat(buffer, startIndex, endIndex);
+				while (buffer[startIndex] != 32)startIndex++;
+				temp.x = getFloat(buffer, startIndex);
+				while (buffer[startIndex] != 32)startIndex++;
+				temp.y = getFloat(buffer, startIndex);
 				texcoords.push_back(temp);
 				break;
-			  }
-			case TOKEN_F:
-			  {
-				Face face;
-				face.Id[0] = getIndices(buffer, startIndex, endIndex);
-				face.Id[1] = getIndices(buffer, startIndex, endIndex);
-				face.Id[2] = getIndices(buffer, startIndex, endIndex);
-				faces.push_back(face);
+			}
+			case TOKEN_F3:
+			{
+				TriFace face;
+				while (buffer[startIndex] != 32)startIndex++;
+				face.Id[0] = getIndices(buffer, startIndex);
+				while (buffer[startIndex] != 32)startIndex++;
+				face.Id[1] = getIndices(buffer, startIndex);
+				while (buffer[startIndex] != 32)startIndex++;
+				face.Id[2] = getIndices(buffer, startIndex);
+				Trifaces.push_back(face);
 				break;
-			  }
-			  
+			}
+			case TOKEN_F4:
+			{
+				QuadFace face;
+				TriFace face1, face2;
+				while (buffer[startIndex] != 32)startIndex++;
+				face.Id[0] = getIndices(buffer, startIndex);
+				while (buffer[startIndex] != 32)startIndex++;
+				face.Id[1] = getIndices(buffer, startIndex);
+				while (buffer[startIndex] != 32)startIndex++;
+				face.Id[2] = getIndices(buffer, startIndex);
+				while (buffer[startIndex] != 32)startIndex++;
+				face.Id[3] = getIndices(buffer, startIndex);
+
+				face1.Id[0] = face.Id[0];
+				face1.Id[1] = face.Id[1];
+				face1.Id[2] = face.Id[2];
+
+				face2.Id[0] = face.Id[0];
+				face2.Id[1] = face.Id[2];
+				face2.Id[2] = face.Id[3];
+				Trifaces.push_back(face1);
+				Trifaces.push_back(face2);
+				break;
+			}
 			case TOKEN_INVALID:
-			  {
-				std::string message = std::to_string(startIndex);
+			{
+				std::string message = "Invalid token at line " + std::to_string(lineCount);
 				MessageBox(NULL, (LPCSTR)&message, "Invalid symbol", NULL);
 				return false;
-			  }
-			
+			}
 			case TOKEN_EMPTY_LINE:
-				break;
-			default:
 			case TOKEN_HASH:
-			  {
-				while (buffer[endIndex] != '\n' && buffer[endIndex] != '\0') 
-				{
-					endIndex++;
-				}
-				startIndex = endIndex + 1;
-				endIndex = startIndex + 1;
-				
-				char awd = buffer[endIndex];
-				int qwe = 1;
+			default:
 				break;
-			  }
-			}; 
-		}
-		else endIndex++;
+			};
 	}
+	fileStream.close();
+
+		
 
 
 	//Adding final vertices to an array
-	int numFaces = static_cast<int>(faces.size());
+	int numFaces = static_cast<int>(Trifaces.size());
 	totalVetices = numFaces * 3;
-
 	if (texcoords.size() == 0) texcoords.push_back(XMFLOAT2(0.0f, 0.0f));
 	if (normals.size() == 0)normals.push_back(XMFLOAT3(0.0f, 0.0f, 0.0f));
 
@@ -303,11 +256,17 @@ bool MeshLoader::LoadMeshFromOBJ(char* filename, DirectDevice* device, ID3D11Buf
 	int k = 0;
 	for (int i = 0; i < numFaces; i++)
 	{
+		if (i == 54)
+		{
+			int asdqwd = 0;
+		}
 		for (int j = 0; j < 3; j++)
 		{
-			m_vertices[k].position = vertices[faces[i].Id[j].vertexId - 1];
-			m_vertices[k].texcoord = texcoords[faces[i].Id[j].textureId - 1];
-			m_vertices[k].normal = normals[faces[i].Id[j].normalId - 1];
+			
+
+			m_vertices[k].position = vertices[Trifaces[i].Id[j].vertexId - 1];
+			m_vertices[k].texcoord = texcoords[Trifaces[i].Id[j].textureId - 1];
+			m_vertices[k].normal = normals[Trifaces[i].Id[j].normalId - 1];
 			k++;
 		}
 	}
@@ -332,7 +291,6 @@ bool MeshLoader::LoadMeshFromOBJ(char* filename, DirectDevice* device, ID3D11Buf
 	}
 
 	delete m_vertices;
-	delete buffer;
 
 	return true;
 }

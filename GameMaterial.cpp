@@ -14,11 +14,31 @@ bool GameMaterial::pushObject(GameObject* obj)
 	return true;
 };
 
+GameMaterial::FILE_EXTENSION GameMaterial::getExtension(wchar_t* texFile)
+{
+	int i = 0;
+	while (i < 256)
+	{
+		if (texFile[i] == L'.')
+		{
+			if (texFile[i + 1] == L'D'&&texFile[i + 2] == L'D'&&texFile[i + 3] == L'S')
+				return EXTENSION_DDS;
+			if (texFile[i + 1] == L'J'&&texFile[i + 2] == L'P'&&texFile[i + 3] == L'G')
+				return EXTENSION_JPG;
+			if (texFile[i + 1] == L'P'&&texFile[i + 2] == L'N'&&texFile[i + 3] == L'G')
+				return EXTENSION_PNG;
+			return EXTENSION_INVALID;
+		}
+		i++;
+
+	}
+	return EXTENSION_INVALID;
+};
+
 bool GameMaterial::LoadContent(DirectDevice* device, wchar_t* textureFile)
 {
 	
 	HRESULT d3dResult;
-
 	ID3D11Texture2D* tex2D;
 	d3dResult = CreateDDSTextureFromFile(device->d3dDevice_, textureFile, (ID3D11Resource**)&tex2D, NULL);
 
@@ -29,7 +49,7 @@ bool GameMaterial::LoadContent(DirectDevice* device, wchar_t* textureFile)
 		char suff[32];
 		unsigned long long num;
 		wcstombs_s(&num, suff, 32, textureFile, 512);
-		char command[100] = {};
+		char command[256] = {};
 		strcat(command, pref);
 		strcat(command, suff);
 		system(command);
@@ -39,7 +59,8 @@ bool GameMaterial::LoadContent(DirectDevice* device, wchar_t* textureFile)
 			return false;
 		}
 	}
-
+	D3D11_TEXTURE2D_DESC tex2Ddesc;
+	tex2D->GetDesc(&tex2Ddesc);
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 	ZeroMemory(&srvDesc, sizeof(srvDesc));
