@@ -47,11 +47,6 @@ bool GameObject::InitWorldCB(ID3D11Device* device)
 	
 	return true;
 }
-void GameObject::Set3DModel(GameModel* model)
-{
-	m_3DModel = model;
-	m_totalVertex = model->m_totalVertex;
-}
 
 void GameObject::SetPosition(XMFLOAT3 position)
 {
@@ -85,13 +80,11 @@ void GameObject::Update()
 	rotationMat = XMMatrixTranspose(rotationMat);
 }
 
-void GameObject::Render(DirectDevice* device, XMMATRIX viewMat, XMMATRIX projMat)
+void GameObject::PrepareRender(DirectDevice* device, XMMATRIX& viewMat, XMMATRIX& projMat)
 {
 	WorldViewProj_.world = XMMatrixTranspose(WorldViewProj_.world);
 	WorldViewProj_.view = XMMatrixTranspose(viewMat);
 	WorldViewProj_.project = XMMatrixTranspose(projMat);
-
-	device->d3dContext_->IASetVertexBuffers(0, 1, &m_3DModel->vertexBuffer_, &stride, &offset);
 	
 	//Update sub resources
 	device->d3dContext_->UpdateSubresource(m_RotateCB, 0, 0, &rotationMat, 0, 0);
@@ -100,21 +93,17 @@ void GameObject::Render(DirectDevice* device, XMMATRIX viewMat, XMMATRIX projMat
 	//update domain shader resource
 	device->d3dContext_->UpdateSubresource(m_WorldViewProjCB, 0, 0, &WorldViewProj_, 0, 0);
 	device->d3dContext_->DSSetConstantBuffers(0, 1, &m_WorldViewProjCB);
-
-	device->d3dContext_->Draw(m_totalVertex, 0);
-
 }
 
-void GameObject::Relase()
+void GameObject::Release()
 {
 	if(m_RotateCB !=nullptr) m_RotateCB->Release();
 	m_RotateCB = 0;
 	if (m_WorldViewProjCB != nullptr) m_WorldViewProjCB->Release();
 	m_WorldViewProjCB = 0;
-	m_3DModel = 0;
 };
 
 GameObject::~GameObject()
 {
-	this->Relase();
+	this->Release();
 }

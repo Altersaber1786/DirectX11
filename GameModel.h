@@ -2,37 +2,49 @@
 #define GAME_MODEL_H
 
 #include "DirectDevice.h"
-#include "MeshLoader.h"
 #include "DDSTextureLoader.h"
+#include "GameMaterial.h"
+#include "GameObject.h"
 #include <vector>
+class Box
+{
+public:
+	Box();
+	~Box();
+	UINT				StartVertex; //The begin of buffer is vertex[0]
+	UINT				NumVertex;
+	GameMaterial*		material;
+	
+	void Release();
+	void Render(DirectDevice* device, ID3D11Buffer* vertexBuffer);
+};
+
 class GameModel
 {
 public:
+	typedef struct Vertex
+	{
+		XMFLOAT3 position;
+		XMFLOAT2 texcoord;
+		XMFLOAT3 normal;
+	}Vertex;
+
 	GameModel();
 	~GameModel();
-	bool LoadGeometry(DirectDevice* device, char* meshFile);	
+	bool pushObject(GameObject* obj);
+	void Render(DirectDevice* device, XMMATRIX& viewMat, XMMATRIX& projMat);
+	void Update();
 
-	int index;
-
-	ID3D11Buffer*		vertexBuffer_;
-	
-	int					m_totalVertex;
-
-	struct MaterialProperties
-	{
-		float Ka = 1.0f;
-		float Kd = 1.0f;
-		float Ks = 1.0f;
-		float SpecExp = 1.0f;
-	};
-	struct Box
-	{
-		ID3D11Texture2D* tex;
-		UINT startVertex;
-		UINT numVertex;
-		MaterialProperties matProp;
-	};
-	std::vector<Box> box;
+	bool	isTransparent;
+	UINT	totalObjects;
+	UINT	index;
+	UINT	m_totalVertices;
+	std::vector<GameObject*>	ObjectList;
+	std::vector<Box>			BoxList;
+	ID3D11Buffer*				vertexBuffer_;
+	UINT		stride = sizeof(Vertex);
+	UINT		offset = 0;
+	void Release();
 };
 
 #endif

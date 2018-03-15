@@ -6,7 +6,7 @@ Camera::Camera()
 {
 	cam_mode = CAM_MODE_FREE;
 	viewMatrix = XMMatrixIdentity();
-	position = XMFLOAT4( 0.0f, 0.0f, 18.0f, 0.0f );
+	position = XMFLOAT4( 0.0f, 0.0f, 10.0f, 0.0f );
 	tessFact.tessFactor = 1.0f;
 }
 void Camera::SetPosition(float x, float y, float z)

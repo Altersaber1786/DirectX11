@@ -6,7 +6,7 @@ LightShader::LightShader()
 
 	
 	light[0].position = XMFLOAT4(0.0f, 0.0f, 12.0f, 0.0f);
-	light[0].intensity = XMFLOAT4(0.6f, 0.6f, 0.6f, 1.0f);
+	light[0].intensity = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	//light[1].position = XMFLOAT4(5.0f, 5.0f, 12.0f, 0.0f);
 	//light[1].intensity = XMFLOAT4(0.2f, 0.6f, 0.6f, 1.0f);
 	//light[2].position = XMFLOAT4(5.0f, -5.0f, 0.0f, 0.0f);
@@ -445,7 +445,7 @@ void LightShader::RenderDeferred(ID3D11DeviceContext* context)
 	context->PSSetSamplers(0, 1, &m_PointSampler);
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	int j = -1, k = G_BUFFER_COUNT - 2;
-	context->PSSetShaderResources(0, 4, m_ShaderResourceViews);
+	context->PSSetShaderResources(0, 4, &m_ShaderResourceViews[1]);
 	context->PSSetShader(m_deferredPShader, 0, 0);
 	for (UINT i = 0; i < totalPointLights; i++)
 	{
@@ -453,12 +453,12 @@ void LightShader::RenderDeferred(ID3D11DeviceContext* context)
 		k = k + j;
 		context->OMSetRenderTargets(1, &m_RenderTargetViews[k], 0);
 		context->ClearRenderTargetView(m_RenderTargetViews[k], clearColor);
-		context->PSSetShaderResources(4, 1, &m_ShaderResourceViews[k + (j*-1)]);
+		context->PSSetShaderResources(k + (j*-1), 1, m_ShaderResourceViews);
 		context->UpdateSubresource(m_LightProperties, 0, 0, &m_LightSources.pointLights[i], 0, 0);
 		context->PSSetConstantBuffers(0, 1, &m_LightProperties);
 		context->Draw(6, 0);
 	}
-	context->OMSetRenderTargets(1, &m_RenderTargetViews[2], 0);
+	context->OMSetRenderTargets(0, NULL, 0);
 	context->PSSetShader(m_finalSquarePS, 0, 0);
 	
 	context->PSSetShaderResources(0, 1, &m_ShaderResourceViews[0]);

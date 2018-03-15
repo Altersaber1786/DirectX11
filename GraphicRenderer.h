@@ -2,10 +2,9 @@
 #define GRAPHIC_RENDERER_H
 
 #include "LightShader.h"
-#include "GameMaterial.h"
 #include "GameModel.h"
 #include "Camera.h"
-
+#include "MeshLoader.h"
 class GraphicRenderer
 {
 
@@ -26,20 +25,20 @@ public:
 	void SetWireFrameState();
 	XMMATRIX	projMatrix_;
 private:
-
+	bool LoadGeometry(char* meshFile, GameModel* model);
 	void BeginScene();
 	void EndScene();
-	float clearColor[4] = { 0.3f, 0.3f, 0.3f, 1.0f };
+	float clearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	float blendFactors[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	Camera*		camera;
 
-	UINT		totalMaterials;
-	UINT		totalModels;
+	UINT		totalOpaqueModels;
+	UINT		totalTransparentModels;
 	UINT		windowWidth;
 	UINT		windowHeight;
 
-
-	std::vector<GameMaterial*>	MaterialList;
-	std::vector<GameModel*>		ModelList;
+	std::vector<GameModel*>		OpaqueModelList;
+	std::vector<GameModel*>		TransparentModelList;
 
 	LightShader*				m_deferredLighting;
 	ID3D11RenderTargetView*		m_backBufferTarget;
@@ -49,7 +48,11 @@ private:
 	DirectDevice*				m_device;
 	ID3D11RasterizerState*		m_RSWireFrame;
 	ID3D11RasterizerState*		m_RSNormal;
-
+	ID3D11BlendState*			m_TransparentBS;
+	ID3D11BlendState*			m_offBS;
+	ID3D11Texture2D*			m_DepthTexture;
+	ID3D11DepthStencilView*		m_DepthStencilView;
+	ID3D11SamplerState*			samplerState_;
 };
 
 #endif

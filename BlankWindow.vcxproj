@@ -146,6 +146,7 @@
     <ClCompile Include="GameMaterial.cpp" />
     <ClCompile Include="GameModel.cpp" />
     <ClCompile Include="GameTime.cpp" />
+    <ClCompile Include="GameUI.cpp" />
     <ClCompile Include="GraphicRenderer.cpp" />
     <ClCompile Include="LightShader.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -160,6 +161,7 @@
     <ClInclude Include="GameMaterial.h" />
     <ClInclude Include="GameModel.h" />
     <ClInclude Include="GameTime.h" />
+    <ClInclude Include="GameUI.h" />
     <ClInclude Include="GraphicRenderer.h" />
     <ClInclude Include="LightShader.h" />
     <ClInclude Include="MeshLoader.h" />

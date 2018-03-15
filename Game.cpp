@@ -13,7 +13,8 @@ bool Game::Initialize(HINSTANCE hInst, HWND hwnd)
 	m_Graphic = new GraphicRenderer();
 	if (!m_Graphic->Initialize(hwnd))
 		return false;
-	m_Graphic->LoadModelList();
+	if(!m_Graphic->LoadModelList())
+		return false;
 	if (!GameInput::Initialize(hInst, hwnd))
 		return false;
 	LoadContent();
@@ -28,36 +29,43 @@ bool Game::Initialize(HINSTANCE hInst, HWND hwnd)
 bool Game::LoadContent()
 {
 	Player = new GameObject();
-	Player->Initialize(XMFLOAT3(0.0f, 1.0f, 4.0f),
+	Player->Initialize(XMFLOAT3(0.0f, 0.0f, 0.0f),
 		XMFLOAT3(0.0f, 0.0f, 0.0f),
 		XMFLOAT3(1.0f, 1.0f, 1.0f));
-	Player->modelIndex = 2;
+	Player->modelIndex = 0;
 	Player->speed = 0.01f;
-	Player2 = new GameObject();
+/*	Player2 = new GameObject();
 	Player2->Initialize(XMFLOAT3(0.0f, 0.0f, 0.0f),
 		XMFLOAT3(0.0f, 0.0f, 0.0f),
 		XMFLOAT3(1.0f, 1.0f, 1.0f));
 	Player2->modelIndex = 1;
 	
 	Player3 = new GameObject();
-	Player3->Initialize(XMFLOAT3(6.0f, 0.0f, 0.0f),
+	Player3->Initialize(XMFLOAT3(6.0f, 3.0f, 5.0f),
 		XMFLOAT3(0.0f, 0.0f, 0.0f),
 		XMFLOAT3(1.0f, 1.0f, 1.0f));
 	Player3->modelIndex = 0;
 
 	Player4 = new GameObject();
-	Player4->Initialize(XMFLOAT3(-8.0f, 5.0f, 3.0f),
+	Player4->Initialize(XMFLOAT3(0.0f, -5.0f, 0.0f),
 		XMFLOAT3(0.0f, 0.0f, 0.0f),
-		XMFLOAT3(1.0f, 1.0f, 1.0f));
-	Player4->modelIndex = 0;
+		XMFLOAT3(10.0f, 10.0f, 10.0f));
+	Player4->modelIndex = 3;
+
+	GameObject* Player5 = new GameObject();
+	Player5->Initialize(XMFLOAT3(0.0f, 0.0f, 0.0f),
+		XMFLOAT3(0.0f, 0.0f, 0.0f),
+		XMFLOAT3(10.0f, 10.0f, 10.0f));
+	Player5->modelIndex = 4;*/
 
 	cam_1 = new Camera();
 	cam_1->cam_mode = Camera::CAM_MODE_ARCBALL;
 
 	m_Graphic->LoadObject(Player);
-	m_Graphic->LoadObject(Player2);
+	//m_Graphic->LoadObject(Player2);
 	//m_Graphic->LoadObject(Player3);
 	//m_Graphic->LoadObject(Player4);
+	//m_Graphic->LoadObject(Player5);
 	m_Graphic->LoadCamera(cam_1);
 
 	//cam_1->Follow(Player);
@@ -95,7 +103,7 @@ void Game::Update()
 	}
 	if (KEY_DOWN(m_KeyboardState, DIK_E))
 	{
-		Player->rotation_.x += (Player->speed)*(m_timeCounter->GetTimeElapsed())*0.1f;
+		//Player->rotation_.x += (Player->speed)*(m_timeCounter->GetTimeElapsed())*0.1f;
 		Player->rotation_.y += (Player->speed)*(m_timeCounter->GetTimeElapsed())*0.1f;
 	}
 	if (BUTTON_DOWN(m_mouseState, 0))

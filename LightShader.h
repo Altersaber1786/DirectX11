@@ -21,7 +21,7 @@ enum LIGHT_TYPE
 class LightShader
 {
 public:
-	ID3D11DepthStencilView*		m_DepthStencilView;
+
 	LightShader();
 	~LightShader();
 	
@@ -29,6 +29,7 @@ public:
 	bool Initialize(ID3D11Device* device);
 	void PreparePacking(ID3D11DeviceContext* context);
 	void RenderDeferred(ID3D11DeviceContext* context);
+	void RenderNormal(ID3D11DeviceContext* context);
 	void Release();
 
 public:
@@ -95,7 +96,7 @@ private:
 	ID3D11Texture2D*			m_GBuffers[G_BUFFER_COUNT];
 	ID3D11ShaderResourceView*	m_ShaderResourceViews[G_BUFFER_COUNT];
 	ID3D11RenderTargetView*		m_RenderTargetViews[G_BUFFER_COUNT];
-
+	ID3D11DepthStencilView*		m_DepthStencilView;
 	//Unordered access view
 	//ID3D11UnorderedAccessView*	m_UAV;
 
@@ -125,7 +126,7 @@ private:
 	Vertex2D					windowSquare[6];
 	LightSource					m_LightSources;
 
-	float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	float clearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 };
 
 #endif

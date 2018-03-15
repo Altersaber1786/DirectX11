@@ -1,8 +1,7 @@
-Texture2D<float4>	Color : register(t0);
-Texture2D<float4>	Positions : register(t1);
-Texture2D<float4>	Normals  : register(t2);
-Texture2D<float4>	DiffSpecCoe : register(t3);
-Texture2D<float4>	Intensity : register(t4);
+Texture2D<float4>	Positions : register(t0);
+Texture2D<float4>	Normals  : register(t1);
+Texture2D<float4>	DiffSpecCoe : register(t2);
+Texture2D<float4>	Intensity : register(t3);
 
 SamplerState PointSampler : register(s0);
 
