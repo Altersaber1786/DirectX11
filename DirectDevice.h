@@ -12,6 +12,7 @@ class DirectDevice
 public:
 	DirectDevice();
 	bool Initialize(HWND, bool);
+	bool CompileD3DShader(LPCWSTR filePath, LPCSTR entry, LPCSTR shaderModel, ID3DBlob** buffer);
 	void Relase();
 
 	void  Message(LPCSTR);
@@ -25,6 +26,12 @@ public:
 	UINT			windowHeight;
 
 	IDXGISwapChain*			swapChain_;
+
+	struct Vertex2D
+	{
+		XMFLOAT3	position;
+		XMFLOAT2	texcoord;
+	};
 private:
 	
 	D3D_DRIVER_TYPE			driverType_;

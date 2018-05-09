@@ -78,6 +78,42 @@ void DirectDevice::getWindowSize()
 	windowHeight = dimensions.bottom - dimensions.top;
 };
 
+bool DirectDevice::CompileD3DShader(LPCWSTR filePath, LPCSTR entry, LPCSTR shaderModel, ID3DBlob** buffer)
+{
+	DWORD shaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
+
+#if defined( DEBUG ) || defined( _DEBUG )
+	shaderFlags |= D3DCOMPILE_DEBUG;
+#endif
+
+	ID3DBlob* errorBuffer = nullptr;
+	HRESULT result;
+	const D3D_SHADER_MACRO defines[] =
+	{
+		"EXAMPLE_DEFINE", "1",
+		NULL, NULL
+	};
+
+	result = D3DCompileFromFile(filePath, defines, D3D_COMPILE_STANDARD_FILE_INCLUDE, entry, shaderModel, shaderFlags, 0, buffer, &errorBuffer);
+
+	if (FAILED(result))
+	{
+		MessageBox(NULL, "Error compile shader code from file!", NULL, 0);
+		if (errorBuffer != nullptr)
+		{
+
+			OutputDebugStringA((char*)errorBuffer->GetBufferPointer());
+			errorBuffer->Release();
+		}
+
+		return false;
+	}
+
+	if (errorBuffer != nullptr)
+		errorBuffer->Release();
+
+	return true;
+}
 
 DirectDevice::~DirectDevice()
 {

@@ -24,6 +24,8 @@ struct DS_OUTPUT
     float2 vTexCoord  : TEXCOORD0;
     float3 vNormal   : NORMAL;
 	float3 vWorldPos : POSITION;
+	float3 vTangent : TANGENT;
+	float3 vBinormal : BINORMAL;
 };
 
 float3 powfoddf3(float3 a, float x)
@@ -51,16 +53,52 @@ struct TriWorldPos
 	float3 vPos: POSITION;
 };
 
+
 [domain("tri")]
 DS_OUTPUT DS( HS_CONSTANT_DATA_OUTPUT input, float3 BarycentricCoordinates : SV_DomainLocation, const OutputPatch<HS_CONTROL_POINT_OUTPUT, 3> TrianglePatch )
 {
-    DS_OUTPUT Out;
+	DS_OUTPUT Out;
+	
+	TriWorldPos TriWorld[3];
+	TriWorld[0].vPos = mul(float4(TrianglePatch[0].vPos, 1.0f), worldMat).xyz;
+	TriWorld[1].vPos = mul(float4(TrianglePatch[1].vPos, 1.0f), worldMat).xyz;
+	TriWorld[2].vPos = mul(float4(TrianglePatch[2].vPos, 1.0f), worldMat).xyz;
+		
+	float3 D = TriWorld[1].vPos - TriWorld[0].vPos;
+	float3 E = TriWorld[2].vPos - TriWorld[0].vPos;
+	
+	float2 F = TrianglePatch[1].vTexCoord - TrianglePatch[0].vTexCoord;
+	float2 G = TrianglePatch[2].vTexCoord - TrianglePatch[0].vTexCoord;
+	
+	float2x2 invFG = { G.y, -F.y,
+					   -G.x, F.y };
+	float2x3 DE = { D.x, D.y, D.z,
+					E.x, E.y, E.z};
+					
+	float2x3 TU = mul(mul(1.0f/(F.x*G.y - F.y*G.x),invFG), DE);
+	float3 T, U;
+	T.x = TU._11;
+	T.y = TU._12;
+	T.z = TU._13;
+	U.x = TU._21;
+	U.y = TU._22;
+	U.z = TU._23;
+	float3 invT[3];
+	float3 invU[3];
+
+	for(int i = 0; i<3; i++)
+	{
+		float3 N = TrianglePatch[i].vNormal;
+		invT[i] = T - dot(N, T)*N;
+		invU[i] = U - dot(N, U)*N - dot(invT[i], U)*invT[i];
+		invT[i] = normalize(invT[i]); //Tangent
+		invU[i] = normalize(invU[i]); //Binormal
+	}
+	
+	
 	
 	//Cubic bezier triangle
-	TriWorldPos TriWorld[3];
-		TriWorld[0].vPos = mul(float4(TrianglePatch[0].vPos, 1.0f), worldMat);
-		TriWorld[1].vPos = mul(float4(TrianglePatch[1].vPos, 1.0f), worldMat);
-		TriWorld[2].vPos = mul(float4(TrianglePatch[2].vPos, 1.0f), worldMat);
+	
 	float3 w12 = dot(TriWorld[1].vPos - TriWorld[0].vPos, TrianglePatch[0].vNormal);
 	float3 w21 = dot(TriWorld[0].vPos - TriWorld[1].vPos, TrianglePatch[1].vNormal);
 	float3 w13 = dot(TriWorld[2].vPos - TriWorld[0].vPos, TrianglePatch[0].vNormal);
@@ -77,9 +115,9 @@ DS_OUTPUT DS( HS_CONSTANT_DATA_OUTPUT input, float3 BarycentricCoordinates : SV_
 	float3 b012 = (2*TriWorld[2].vPos + TriWorld[1].vPos - w32*TrianglePatch[2].vNormal)/3.0f;
 	float3 b102 = (2*TriWorld[2].vPos + TriWorld[0].vPos - w31*TrianglePatch[2].vNormal)/3.0f;
 	float3 b201 = (2*TriWorld[0].vPos + TriWorld[2].vPos - w13*TrianglePatch[0].vNormal)/3.0f;
-	float3 E = (b210 + b120 + b021 + b012 + b102 + b201)/6.0f;
-	float3 V = (TriWorld[0].vPos + TriWorld[1].vPos + TriWorld[2].vPos)/3.0f;
-	float3 b111 = E + (E-V)/2.0f;
+	float3 E_bezier = (b210 + b120 + b021 + b012 + b102 + b201)/6.0f;
+	float3 V_bezier = (TriWorld[0].vPos + TriWorld[1].vPos + TriWorld[2].vPos)/3.0f;
+	float3 b111 = E_bezier + (E_bezier - V_bezier)/2.0f;
 	
 	
 	
@@ -101,6 +139,9 @@ DS_OUTPUT DS( HS_CONSTANT_DATA_OUTPUT input, float3 BarycentricCoordinates : SV_
 	Out.vNormal = BarycentricCoordinates.x * TrianglePatch[0].vNormal + 
 	BarycentricCoordinates.y * TrianglePatch[1].vNormal + 
 	BarycentricCoordinates.z * TrianglePatch[2].vNormal;
+	
+	Out.vTangent = BarycentricCoordinates.x* invT[0] + BarycentricCoordinates.y*invT[1] + BarycentricCoordinates.z*invT[2];
+	Out.vBinormal = BarycentricCoordinates.x*invU[0] + BarycentricCoordinates.y*invU[1] + BarycentricCoordinates.z*invU[2];
 	
 	Out.vCSPos = float4(Out.vWorldPos, 1.0f);
 	Out.vCSPos = mul(Out.vCSPos, viewMat);

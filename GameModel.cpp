@@ -43,9 +43,11 @@ void GameModel::Render(DirectDevice* device, XMMATRIX& viewMat, XMMATRIX& projMa
 
 void Box::Render(DirectDevice* device, ID3D11Buffer* vertexBuffer)
 {
-	if(material->shaderResourceView_)
-	device->d3dContext_->PSSetShaderResources(0, 1, &material->shaderResourceView_);
-	device->d3dContext_->UpdateSubresource(material->propCB_, 0, 0, &material->surfaceProperties, 0, 0);
+	for (int i = 0; i < MAX_TEXTURE_MAP; i++)
+	{
+		if (material->shaderResourceView_[i] != nullptr)
+			device->d3dContext_->PSSetShaderResources(i, 1, &material->shaderResourceView_[i]);
+	}
 	device->d3dContext_->PSSetConstantBuffers(1, 1, &material->propCB_);
 	device->d3dContext_->Draw(NumVertex, StartVertex);
 }
@@ -61,12 +63,13 @@ void GameModel::Release()
 		BoxList[i].Release();
 	}
 	BoxList.clear();
-	if (vertexBuffer_) vertexBuffer_->Release();
+	if (vertexBuffer_!= nullptr) vertexBuffer_->Release();
 	vertexBuffer_ = nullptr;
 	for (int i = ObjectList.size() - 1; i > 0; i--)
 	{
 		ObjectList[i]->Release();
 	}
+	ObjectList.clear();
 }
 
 GameModel::~GameModel()
@@ -76,5 +79,4 @@ GameModel::~GameModel()
 
 Box::~Box() 
 {
-
 }

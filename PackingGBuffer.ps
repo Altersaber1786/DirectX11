@@ -1,4 +1,7 @@
-Texture2D colorMap : register(t0);
+Texture2D ambientMap : register(t0);
+Texture2D diffuseMap : register(t1);
+Texture2D specularMap : register(t2);
+Texture2D normalMap : register(t3);
 SamplerState samplerState : register(s0);
 
 cbuffer DiffuseAmbient : register(b0)
@@ -11,26 +14,29 @@ cbuffer DiffuseAmbient : register(b0)
 
 cbuffer MaterialProperties : register(b1)
 {
-	float	Ka;
-	float	Kd;
-	float	Ks;
-	float	SpecExp;
-};
+  float Ka;
+  float Kd;
+  float Ks;
+  float Ns;
+}
+
 struct DS_OUTPUT
 {
     float4 vCSPos : SV_POSITION;
     float2 vTexCoord  : TEXCOORD0;
     float3 vNormal   : NORMAL;
 	float3 vWorldPos : POSITION;
+	float3 vTangent : TANGENT;
+	float3 vBinormal : BINORMAL;
 };
 
 struct PS_OUTPUT
 {
-	float4 BaseColor : SV_TARGET0;
-	float4 Position  : SV_TARGET1;
-	float4 Normal    : SV_TARGET2;
-	float4 DiffSpecCoe : SV_TARGET3;
-	float4 Intensity : SV_TARGET4;
+	float4 baseDiffAmbColor: SV_TARGET0;
+	float4 DiffuseColor : SV_TARGET1;
+	float4 SpecularColor : SV_TARGET2;
+	float4 Position  : SV_TARGET3;
+	float4 Normal    : SV_TARGET4;
 };
 
 float4 Powf4(float4 a, float b)
@@ -50,7 +56,7 @@ float4 calcAmbient(float4 normal)
 
 	float4 Ambient = AmbientDown + up * AmbientRange;
 
-	return Ambient*Ka;
+	return Ambient;
 }
 
 float4 calcDiffuse(float4 normal)
@@ -58,7 +64,7 @@ float4 calcDiffuse(float4 normal)
 	float4 DirToDiffuse = DiffuseDirection;
 	DirToDiffuse = -DirToDiffuse;
 	float  NDotL = dot(DirToDiffuse.xyz, normal.xyz);
-	float4 finalInten = Kd * DiffuseIntensity * saturate(NDotL);
+	float4 finalInten =  DiffuseIntensity * saturate(NDotL);
 
 	return finalInten;
 }
@@ -66,13 +72,19 @@ float4 calcDiffuse(float4 normal)
 PS_OUTPUT PS_Main(DS_OUTPUT frag) : SV_TARGET
 {
 	PS_OUTPUT result;
-	result.BaseColor = colorMap.Sample(samplerState, frag.vTexCoord);
-	//result.BaseColor = Powf4(result.BaseColor, 1.0 / 2.2);
+	float4 ambColor = ambientMap.Sample(samplerState, frag.vTexCoord);
+	float4 diffColor = diffuseMap.Sample(samplerState, frag.vTexCoord);
 	result.Position = float4(frag.vWorldPos, 1.0f);
-	result.Normal = float4(frag.vNormal, 1.0f);
-	result.Intensity = calcAmbient(result.Normal) + calcDiffuse(result.Normal);
-	result.DiffSpecCoe.x = Kd;
-	result.DiffSpecCoe.y = Ks;
-	result.DiffSpecCoe.z = SpecExp;
+	
+	float4 normalMapval = normalMap.Sample(samplerState, frag.vTexCoord);
+	normalMapval = normalMapval*2.0f - 1.0f;
+	float3 normalResult = frag.vTangent*normalMapval.x + frag.vBinormal*normalMapval.y + frag.vNormal*normalMapval.z;
+	normalResult = normalize(normalResult);
+	result.Normal = float4(normalResult, Ns);
+	result.baseDiffAmbColor = diffColor*calcDiffuse(result.Normal) + ambColor*calcAmbient(result.Normal);
+	result.SpecularColor = specularMap.Sample(samplerState, frag.vTexCoord);
+	result.DiffuseColor = diffColor;
+	
+	
 	return result;
 }

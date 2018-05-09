@@ -15,44 +15,9 @@ LightShader::LightShader()
 	//m_LightSources.pointLights.push_back(light[1]);
 	//m_LightSources.pointLights.push_back(light[2]);
 }
-bool LightShader::CompileD3DShader(LPCWSTR filePath, LPCSTR entry, LPCSTR shaderModel, ID3DBlob** buffer)
-{	
-	DWORD shaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
 
-#if defined( DEBUG ) || defined( _DEBUG )
-	shaderFlags |= D3DCOMPILE_DEBUG;
-#endif
 
-	ID3DBlob* errorBuffer = nullptr;
-	HRESULT result;
-	const D3D_SHADER_MACRO defines[] =
-	{
-		"EXAMPLE_DEFINE", "1",
-		NULL, NULL
-	};
-
-	result = D3DCompileFromFile(filePath, defines, D3D_COMPILE_STANDARD_FILE_INCLUDE, entry, shaderModel, shaderFlags, 0, buffer, &errorBuffer);
-
-	if (FAILED(result))
-	{
-		MessageBox(NULL,"Error compile shader code from file!", NULL, 0);
-		if (errorBuffer != nullptr)
-		{
-
-			OutputDebugStringA((char*)errorBuffer->GetBufferPointer());
-			errorBuffer->Release();
-		}
-
-		return false;
-	}
-
-	if (errorBuffer != nullptr)
-		errorBuffer->Release();
-
-	return true;
-}
-
-bool LightShader::Initialize(ID3D11Device* d3dDevice)
+bool LightShader::Initialize(DirectDevice* device)
 {
 	HRESULT result;
 	ID3DBlob* vsBytecode;
@@ -60,7 +25,7 @@ bool LightShader::Initialize(ID3D11Device* d3dDevice)
 	ID3DBlob* hsBytecode;
 	ID3DBlob* dsBytecode;
 
-	bool compileResult = CompileD3DShader(L"PackingGBuffer.vs", "VS_Main", "vs_5_0", &vsBytecode);
+	bool compileResult = device->CompileD3DShader(L"PackingGBuffer.vs", "VS_Main", "vs_5_0", &vsBytecode);
 
 	if (compileResult == false)
 	{
@@ -68,7 +33,7 @@ bool LightShader::Initialize(ID3D11Device* d3dDevice)
 		return false;
 	}
 
-	result = d3dDevice->CreateVertexShader(vsBytecode->GetBufferPointer(), vsBytecode->GetBufferSize(), 0, &m_gPackingVShader);
+	result = device->d3dDevice_->CreateVertexShader(vsBytecode->GetBufferPointer(), vsBytecode->GetBufferSize(), 0, &m_gPackingVShader);
 	if (FAILED(result))
 	{
 		MessageBox(NULL, "Error creating the model vertex shader!", NULL, NULL);
@@ -92,7 +57,7 @@ bool LightShader::Initialize(ID3D11Device* d3dDevice)
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
-	result = d3dDevice->CreateInputLayout(gpackingIputDesc, 3, vsBytecode->GetBufferPointer(), vsBytecode->GetBufferSize(), &m_modelInputLayout);
+	result = device->d3dDevice_->CreateInputLayout(gpackingIputDesc, 3, vsBytecode->GetBufferPointer(), vsBytecode->GetBufferSize(), &m_modelInputLayout);
 
 	if (FAILED(result))
 	{
@@ -104,20 +69,20 @@ bool LightShader::Initialize(ID3D11Device* d3dDevice)
 
 	vsBytecode->Release();
 
-	compileResult = CompileD3DShader(L"DeferredLighting.fx", "VS_Main", "vs_5_0", &vsBytecode);
+	compileResult = device->CompileD3DShader(L"DeferredLighting.fx", "VS_Main", "vs_5_0", &vsBytecode);
 	if (!compileResult)
 	{
 		MessageBox(NULL, "Error compiling the deferred vertex shader!", NULL, NULL);
 		return false;
 	}
-	result = d3dDevice->CreateVertexShader(vsBytecode->GetBufferPointer(), vsBytecode->GetBufferSize(), NULL, &m_deferredVShader);
+	result = device->d3dDevice_->CreateVertexShader(vsBytecode->GetBufferPointer(), vsBytecode->GetBufferSize(), NULL, &m_deferredVShader);
 	if (FAILED(result))
 	{
 		MessageBox(NULL, "Error creating the deferred vertex shader!", NULL, NULL);
 		return false;
 	}
 
-	result = d3dDevice->CreateInputLayout(deferredShadingIputDesc, 2, vsBytecode->GetBufferPointer(), vsBytecode->GetBufferSize(), &m_squareInputLayout);
+	result = device->d3dDevice_->CreateInputLayout(deferredShadingIputDesc, 2, vsBytecode->GetBufferPointer(), vsBytecode->GetBufferSize(), &m_squareInputLayout);
 	if (FAILED(result))
 	{
 		MessageBox(NULL, "Error creating the deferred Input layout!", NULL, NULL);
@@ -125,13 +90,13 @@ bool LightShader::Initialize(ID3D11Device* d3dDevice)
 	}
 	vsBytecode->Release();
 
-	compileResult = CompileD3DShader(L"PackingGBuffer.ps", "PS_Main", "ps_5_0", &psBytecode);
+	compileResult = device->CompileD3DShader(L"PackingGBuffer.ps", "PS_Main", "ps_5_0", &psBytecode);
 	if (!compileResult)
 	{
 		MessageBox(NULL, "Error compiling gbuffer pixel shader!", NULL, NULL);
 		return false;
 	}
-	result = d3dDevice->CreatePixelShader(psBytecode->GetBufferPointer(), psBytecode->GetBufferSize(), NULL, &m_gPackingPShader);
+	result = device->d3dDevice_->CreatePixelShader(psBytecode->GetBufferPointer(), psBytecode->GetBufferSize(), NULL, &m_gPackingPShader);
 	if (FAILED(result))
 	{
 		MessageBox(NULL, "Error creating gbuffer packing pixel shader!", NULL, NULL);
@@ -139,26 +104,26 @@ bool LightShader::Initialize(ID3D11Device* d3dDevice)
 	}
 	psBytecode->Release();
 
-	compileResult = CompileD3DShader(L"DeferredLighting.fx", "PS_Main", "ps_5_0", &psBytecode);
+	compileResult = device->CompileD3DShader(L"DeferredLighting.fx", "PS_Main", "ps_5_0", &psBytecode);
 	if (!compileResult)
 	{
 		MessageBox(NULL, "Error compiling deferred Lighting pixel shader!", NULL, NULL);
 		return false;
 	}
-	result = d3dDevice->CreatePixelShader(psBytecode->GetBufferPointer(), psBytecode->GetBufferSize(), NULL, &m_deferredPShader);
+	result = device->d3dDevice_->CreatePixelShader(psBytecode->GetBufferPointer(), psBytecode->GetBufferSize(), NULL, &m_deferredPShader);
 	if (FAILED(result))
 	{
 		MessageBox(NULL, "Error creating deferred shading pixel shader!", NULL, NULL);
 		return false;
 	}
 	psBytecode->Release();
-	compileResult = CompileD3DShader(L"FinalSquarePS.hlsl", "main", "ps_5_0", &psBytecode);
+	compileResult = device->CompileD3DShader(L"FinalSquarePS.hlsl", "main", "ps_5_0", &psBytecode);
 	if (!compileResult)
 	{
 		MessageBox(NULL, "Error compiling final pixel shader!", NULL, NULL);
 		return false;
 	}
-	result = d3dDevice->CreatePixelShader(psBytecode->GetBufferPointer(), psBytecode->GetBufferSize(), NULL, &m_finalSquarePS);
+	result = device->d3dDevice_->CreatePixelShader(psBytecode->GetBufferPointer(), psBytecode->GetBufferSize(), NULL, &m_finalSquarePS);
 	if (FAILED(result))
 	{
 		MessageBox(NULL, "Error creating  final PS!", NULL, NULL);
@@ -168,14 +133,14 @@ bool LightShader::Initialize(ID3D11Device* d3dDevice)
 	
 	psBytecode->Release();
 
-	compileResult = CompileD3DShader(L"tessdemo.hs", "HS", "hs_5_0", &hsBytecode);
+	compileResult = device->CompileD3DShader(L"tessdemo.hs", "HS", "hs_5_0", &hsBytecode);
 	if (!compileResult)
 	{
 		MessageBox(NULL, "Error compiling hull shader!", NULL, NULL);
 		return false;
 	}
 
-	result = d3dDevice->CreateHullShader(hsBytecode->GetBufferPointer(), hsBytecode->GetBufferSize(), NULL, &m_hullShader);
+	result = device->d3dDevice_->CreateHullShader(hsBytecode->GetBufferPointer(), hsBytecode->GetBufferSize(), NULL, &m_hullShader);
 	if (FAILED(result))
 	{
 		MessageBox(NULL, "Error creating  hull shader!", NULL, NULL);
@@ -184,14 +149,14 @@ bool LightShader::Initialize(ID3D11Device* d3dDevice)
 	};
 	hsBytecode->Release();
 
-	compileResult = CompileD3DShader(L"tessdemo.ds", "DS", "ds_5_0", &dsBytecode);
+	compileResult = device->CompileD3DShader(L"tessdemo.ds", "DS", "ds_5_0", &dsBytecode);
 	if (!compileResult)
 	{
 		MessageBox(NULL, "Error compiling domain shader!", NULL, NULL);
 		return false;
 	}
 
-	result = d3dDevice->CreateDomainShader(dsBytecode->GetBufferPointer(), dsBytecode->GetBufferSize(), NULL, &m_domainShader);
+	result = device->d3dDevice_->CreateDomainShader(dsBytecode->GetBufferPointer(), dsBytecode->GetBufferSize(), NULL, &m_domainShader);
 	if (FAILED(result))
 	{
 		MessageBox(NULL, "Error creating  domain shader!", NULL, NULL);
@@ -220,7 +185,7 @@ bool LightShader::Initialize(ID3D11Device* d3dDevice)
 	pointSamplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	pointSamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 	
-	result = d3dDevice->CreateSamplerState(&pointSamplerDesc, &m_PointSampler);
+	result = device->d3dDevice_->CreateSamplerState(&pointSamplerDesc, &m_PointSampler);
 
 	//Light Properties buffer
 	D3D11_BUFFER_DESC lightDesc;
@@ -229,7 +194,7 @@ bool LightShader::Initialize(ID3D11Device* d3dDevice)
 	lightDesc.ByteWidth = sizeof(LightSource);
 	lightDesc.Usage = D3D11_USAGE_DEFAULT;
 
-	result = d3dDevice->CreateBuffer(&lightDesc, NULL, &m_LightProperties);
+	result = device->d3dDevice_->CreateBuffer(&lightDesc, NULL, &m_LightProperties);
 	if (FAILED(result))
 	{
 		MessageBox(NULL, "Error creating light properties constant buffer", NULL, NULL);
@@ -237,7 +202,7 @@ bool LightShader::Initialize(ID3D11Device* d3dDevice)
 	}
 
 	lightDesc.ByteWidth = sizeof(UniqueLights);
-	result = d3dDevice->CreateBuffer(&lightDesc, NULL, &m_diffAmbCB);
+	result = device->d3dDevice_->CreateBuffer(&lightDesc, NULL, &m_diffAmbCB);
 	if (FAILED(result))
 	{
 		MessageBox(NULL, "Error creating default diffuse and abient constant buffer", NULL, NULL);
@@ -419,8 +384,8 @@ void LightShader::PreparePacking(ID3D11DeviceContext* context)
 
 	context->PSSetShader(m_gPackingPShader, 0, 0);
 	
-	context->OMSetRenderTargets(G_BUFFER_COUNT - 1, m_RenderTargetViews, m_DepthStencilView);
-	for (UINT i = 0; i < G_BUFFER_COUNT - 1; i++)
+	context->OMSetRenderTargets(G_BUFFER_COUNT - 4, m_RenderTargetViews, m_DepthStencilView);
+	for (UINT i = 0; i < G_BUFFER_COUNT - 4; i++)
 	{
 		context->ClearRenderTargetView(m_RenderTargetViews[i], clearColor);
 	}
@@ -444,16 +409,17 @@ void LightShader::RenderDeferred(ID3D11DeviceContext* context)
 	
 	context->PSSetSamplers(0, 1, &m_PointSampler);
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	int j = -1, k = G_BUFFER_COUNT - 2;
-	context->PSSetShaderResources(0, 4, &m_ShaderResourceViews[1]);
+	int j = -2, k = G_BUFFER_COUNT - 4;
+	context->PSSetShaderResources(0, 4, &m_ShaderResourceViews[3]);
 	context->PSSetShader(m_deferredPShader, 0, 0);
 	for (UINT i = 0; i < totalPointLights; i++)
 	{
 		j = j*(-1);
 		k = k + j;
-		context->OMSetRenderTargets(1, &m_RenderTargetViews[k], 0);
+		context->OMSetRenderTargets(2, &m_RenderTargetViews[k], 0);
 		context->ClearRenderTargetView(m_RenderTargetViews[k], clearColor);
-		context->PSSetShaderResources(k + (j*-1), 1, m_ShaderResourceViews);
+		context->ClearRenderTargetView(m_RenderTargetViews[k + 1], clearColor);
+		context->PSSetShaderResources(2, 2, &m_ShaderResourceViews[k - j]);
 		context->UpdateSubresource(m_LightProperties, 0, 0, &m_LightSources.pointLights[i], 0, 0);
 		context->PSSetConstantBuffers(0, 1, &m_LightProperties);
 		context->Draw(6, 0);
@@ -461,11 +427,11 @@ void LightShader::RenderDeferred(ID3D11DeviceContext* context)
 	context->OMSetRenderTargets(0, NULL, 0);
 	context->PSSetShader(m_finalSquarePS, 0, 0);
 	
-	context->PSSetShaderResources(0, 1, &m_ShaderResourceViews[0]);
+	context->PSSetShaderResources(0, 3, m_ShaderResourceViews);
 	if(k == 5)
-		context->PSSetShaderResources(1, 1, &m_ShaderResourceViews[5]);
+		context->PSSetShaderResources(3, 2, &m_ShaderResourceViews[5]);
 	else
-		context->PSSetShaderResources(1, 1, &m_ShaderResourceViews[4]);
+		context->PSSetShaderResources(3, 2, &m_ShaderResourceViews[7]);
 }
 
 void LightShader::Release()

@@ -105,7 +105,9 @@ int MeshLoader::getToken(std::string& buffer)
 			if (buffer[2] == 'm')
 				if (buffer[3] == 'p')
 					return TOKEN_BUMP;
-	}if (buffer[0] == 'd')
+	}
+	
+	if (buffer[0] == 'd')
 	{
 			return TOKEN_D;
 	}
@@ -382,15 +384,17 @@ bool MeshLoader::LoadMeshFromOBJ(char* filename, DirectDevice* device, GameModel
 		Box tempBox;
 		tempBox.StartVertex = k;
 		GameMaterial* tempMat = new GameMaterial();
+		tempMat->Initialize(device);
 		while (mtlStream.good())
 		{
 			getline(mtlStream, buffer);
 			if(getToken(buffer)==TOKEN_NEWMTL)
 				if (strcmp(faceGroups[x].usemtl.c_str(), buffer.c_str() + 7) == 0)
 				{
-					getline(mtlStream, buffer);
-					while (mtlStream.good() && getToken(buffer) != TOKEN_NEWMTL)
+					while (mtlStream.good())
 					{
+						getline(mtlStream, buffer);
+						if (getToken(buffer) == TOKEN_NEWMTL) break;
 						switch (getToken(buffer))
 						{
 							case TOKEN_KA:
@@ -420,10 +424,49 @@ bool MeshLoader::LoadMeshFromOBJ(char* filename, DirectDevice* device, GameModel
 							case TOKEN_MAP_KD:
 							{
 								std::string str = std::string(buffer.begin() + 7, buffer.end());
-								if (!tempMat->LoadContent(device, "./ModelsandTextures/"+str))
+								if (!tempMat->LoadTextureFromFileAndCombine(device, "./ModelsandTextures/"+str, GameMaterial::DIFFUSE_MAP))
 								{
 									MessageBox(NULL, "Invalid texture file, make sure the file exist.", "Invalid symbol", NULL);
 									return false;
+								}
+								break;
+							}
+							case TOKEN_MAP_KA:
+							{
+								std::string str = std::string(buffer.begin() + 7, buffer.end());
+								if (str.length() != 0)
+								{
+									if (!tempMat->LoadTextureFromFileAndCombine(device, "./ModelsandTextures/" + str, GameMaterial::AMBIENT_MAP))
+									{
+										MessageBox(NULL, "Invalid texture file, make sure the file exist.", "Invalid symbol", NULL);
+										return false;
+									}
+								}
+								break;
+							}
+							case TOKEN_MAP_KS:
+							{
+								std::string str = std::string(buffer.begin() + 7, buffer.end());
+								if (str.length() != 0)
+								{
+									if (!tempMat->LoadTextureFromFileAndCombine(device, "./ModelsandTextures/" + str, GameMaterial::SPECULAR_MAP))
+									{
+										MessageBox(NULL, "Invalid texture file, make sure the file exist.", "Invalid symbol", NULL);
+										return false;
+									}
+								}
+								break;
+							}
+							case TOKEN_BUMP:
+							{
+								std::string str = std::string(buffer.begin() + 5, buffer.end());
+								if (str.length() != 0)
+								{
+									if (!tempMat->LoadTextureFromFileAndCombine(device, "./ModelsandTextures/" + str, GameMaterial::NORMAL_MAP))
+									{
+										MessageBox(NULL, "Invalid texture file, make sure the file exist.", "Invalid symbol", NULL);
+										return false;
+									}
 								}
 								break;
 							}
@@ -436,14 +479,13 @@ bool MeshLoader::LoadMeshFromOBJ(char* filename, DirectDevice* device, GameModel
 							default:
 								break;
 						}
-						getline(mtlStream, buffer);
 					}
 					break;
 				}
 		}
 		mtlStream.close();
+		tempMat->ReleaseAfterload();
 		tempBox.material = tempMat;
-		tempMat = nullptr;
 
 		for (int i = 0; i < numFaces; i++)
 		{

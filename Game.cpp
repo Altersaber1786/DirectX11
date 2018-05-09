@@ -34,13 +34,13 @@ bool Game::LoadContent()
 		XMFLOAT3(1.0f, 1.0f, 1.0f));
 	Player->modelIndex = 0;
 	Player->speed = 0.01f;
-/*	Player2 = new GameObject();
-	Player2->Initialize(XMFLOAT3(0.0f, 0.0f, 0.0f),
+	Player2 = new GameObject();
+	Player2->Initialize(XMFLOAT3(3.0f, 3.0f, 3.0f),
 		XMFLOAT3(0.0f, 0.0f, 0.0f),
 		XMFLOAT3(1.0f, 1.0f, 1.0f));
-	Player2->modelIndex = 1;
+	Player2->modelIndex = 0;
 	
-	Player3 = new GameObject();
+/*	Player3 = new GameObject();
 	Player3->Initialize(XMFLOAT3(6.0f, 3.0f, 5.0f),
 		XMFLOAT3(0.0f, 0.0f, 0.0f),
 		XMFLOAT3(1.0f, 1.0f, 1.0f));
@@ -103,7 +103,7 @@ void Game::Update()
 	}
 	if (KEY_DOWN(m_KeyboardState, DIK_E))
 	{
-		//Player->rotation_.x += (Player->speed)*(m_timeCounter->GetTimeElapsed())*0.1f;
+		Player->rotation_.x += (Player->speed)*(m_timeCounter->GetTimeElapsed())*0.1f;
 		Player->rotation_.y += (Player->speed)*(m_timeCounter->GetTimeElapsed())*0.1f;
 	}
 	if (BUTTON_DOWN(m_mouseState, 0))

@@ -5,7 +5,7 @@
 #include <vector>
 #include "GameMaterial.h"
 
-#define G_BUFFER_COUNT	6
+#define G_BUFFER_COUNT	9
 #define	TOTAL_LIGHT_TYPES	4;
 
 using namespace DirectX;
@@ -26,10 +26,9 @@ public:
 	~LightShader();
 	
 	bool InitGBuffers(ID3D11Device* device);
-	bool Initialize(ID3D11Device* device);
+	bool Initialize(DirectDevice* device);
 	void PreparePacking(ID3D11DeviceContext* context);
 	void RenderDeferred(ID3D11DeviceContext* context);
-	void RenderNormal(ID3D11DeviceContext* context);
 	void Release();
 
 public:
@@ -37,7 +36,6 @@ public:
 	UINT textureHeight;
 
 private:
-	bool CompileD3DShader(LPCWSTR filePath, LPCSTR entry, LPCSTR shaderModel, ID3DBlob** buffer);
 
 	struct UniqueLights
 	{
@@ -85,11 +83,7 @@ private:
 	};
 
 
-	struct Vertex2D
-	{
-		XMFLOAT3	position;
-		XMFLOAT2	texcoord;
-	};
+
 	
 private:
 	//Gbuffer views
@@ -121,9 +115,9 @@ private:
 	ID3D11Buffer*				m_diffAmbCB;
 
 	
-	UINT						stride = sizeof(Vertex2D);
+	UINT						stride = sizeof(DirectDevice::Vertex2D);
 	UINT						offset = 0;
-	Vertex2D					windowSquare[6];
+	DirectDevice::Vertex2D					windowSquare[6];
 	LightSource					m_LightSources;
 
 	float clearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };

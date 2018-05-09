@@ -20,11 +20,15 @@ bool GraphicRenderer::LoadGeometry(char* meshFile, GameModel* model)
 }
 bool GraphicRenderer::LoadModelList()
 {
-	GameModel* wall = new GameModel();
-	if (!LoadGeometry("./ModelsandTextures/wall.obj", wall))
+	//GameModel* wall = new GameModel();
+	//if (!LoadGeometry("./ModelsandTextures/wall.obj", wall))
+		//return false;
+	GameModel* business = new GameModel();
+	if (!LoadGeometry("./ModelsandTextures/house_obj.obj", business))
 		return false;
 
-	OpaqueModelList.push_back(wall);
+	//OpaqueModelList.push_back(wall);
+	OpaqueModelList.push_back(business);
 	totalOpaqueModels = static_cast<int>(OpaqueModelList.size());
 	totalTransparentModels = static_cast<int>(TransparentModelList.size());
 	return true;
@@ -70,7 +74,7 @@ bool GraphicRenderer::Initialize(HWND hwnd)
 	if (result == false)
 		return false;
 
-	result = m_deferredLighting->Initialize(m_device->d3dDevice_);
+	result = m_deferredLighting->Initialize(m_device);
 	if (result == false)
 		return false;
 
@@ -186,7 +190,7 @@ bool GraphicRenderer::CreateViewsDependWindowSize()
 
 	D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
 	ZeroMemory(&rtvDesc, sizeof(rtvDesc));
-	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 
 	HRESULT result = m_device->d3dDevice_->CreateRenderTargetView(BackBuffer, &rtvDesc, &m_backBufferTarget);
@@ -217,7 +221,7 @@ bool GraphicRenderer::CreateViewsDependWindowSize()
 	ZeroMemory(&rsDesc, sizeof(rsDesc));
 	m_device->d3dDevice_->CreateRasterizerState(&rsDesc, &m_RSNormal);
 
-	m_device->d3dContext_->RSSetViewports(1, &viewport);
+	
 	// Create the Depth stencil texture
 	D3D11_TEXTURE2D_DESC depthTexDesc;
 	ZeroMemory(&depthTexDesc, sizeof(depthTexDesc));
@@ -283,6 +287,7 @@ void GraphicRenderer::Update()
 
 void GraphicRenderer::BeginScene()
 {
+	m_device->d3dContext_->RSSetViewports(1, &viewport);
 	m_device->d3dContext_->ClearRenderTargetView(m_backBufferTarget, clearColor);
 	m_device->d3dContext_->PSSetSamplers(0, 1, &samplerState_);
 	m_deferredLighting->PreparePacking(m_device->d3dContext_);
@@ -363,5 +368,5 @@ void GraphicRenderer::Release()
 
 GraphicRenderer::~GraphicRenderer()
 {
-	Release();
+	this->Release();
 };
