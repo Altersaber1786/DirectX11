@@ -2,8 +2,8 @@
 #define DIRECT_DEVICE_H
 
 #include <D3DCompiler.h>
+#include <d3d11.h>
 #include <DirectXMath.h>
-#include "d3dx11effect.h"
 
 using namespace DirectX;
 

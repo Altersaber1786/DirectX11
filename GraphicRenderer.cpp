@@ -203,7 +203,7 @@ bool GraphicRenderer::CreateViewsDependWindowSize()
 	};
 
 	float AspectRatio = static_cast<float>(windowWidth) / static_cast<float>(windowHeight);
-	projMatrix_ = XMMatrixPerspectiveFovLH(XM_PI / 4.0f, AspectRatio, 0.1f, 600.0f);
+	projMatrix_ = XMMatrixPerspectiveFovLH(XM_PI / 4.0f, AspectRatio, 0.1f, 2000.0f);
 	
 	viewport.Width = static_cast<float>(windowWidth);
 	viewport.Height = static_cast<float>(windowHeight);

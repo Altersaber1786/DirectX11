@@ -264,7 +264,7 @@ bool MeshLoader::LoadMeshFromOBJ(char* filename, DirectDevice* device, GameModel
 		{
 			XMFLOAT2 temp;
 			while (buffer[startIndex] != 32)startIndex++;
-			temp.x = 1.0f - getFloat(buffer, startIndex);
+			temp.x = getFloat(buffer, startIndex);
 			while (buffer[startIndex] != 32)startIndex++;
 			temp.y = 1.0f - getFloat(buffer, startIndex);
 			texcoords.push_back(temp);
@@ -309,7 +309,7 @@ bool MeshLoader::LoadMeshFromOBJ(char* filename, DirectDevice* device, GameModel
 			face1.Id[0] = face.Id[0];
 			face1.Id[1] = face.Id[1];
 			face1.Id[2] = face.Id[2];
-
+			
 			face2.Id[0] = face.Id[0];
 			face2.Id[1] = face.Id[2];
 			face2.Id[2] = face.Id[3];

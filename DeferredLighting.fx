@@ -1,7 +1,7 @@
-Texture2D<float4>	Positions : register(t0);
-Texture2D<float4>	Normals  : register(t1);
-Texture2D<float4>	diffuseIntensity : register(t2);
-Texture2D<float4>	specularIntensity : register(t3);
+Texture2D	Positions : register(t0);
+Texture2D	Normals  : register(t1);
+Texture2D	diffuseIntensity : register(t2);
+Texture2D	specularIntensity : register(t3);
 
 SamplerState PointSampler : register(s0);
 
@@ -97,8 +97,10 @@ PS_OUTPUT PS_Main(PS_INPUT frag) : SV_TARGET
 	float4 t_DiffuseIntensity = diffuseIntensity.Sample(PointSampler, frag.tex0);
 	
 
-	pOut.SpecIntensity = float4(1.0f, 1.0f, 1.0f, 1.0f);
-	pOut.DiffuseIntensity = float4(1.0f, 1.0f, 1.0f, 1.0f);
+	pOut.SpecIntensity = calcSpec(t_position, t_normal) + t_SpecIntensity;
+	pOut.DiffuseIntensity = calcDiffuse(t_position, t_normal) + t_DiffuseIntensity;
+//	pOut.SpecIntensity = float4(1.0f, 1.0f, 1.0f, 0.0f);
+//	pOut.DiffuseIntensity = float4(1.0f, 1.0f, 1.0f, 0.0f);
 	
 	return pOut;
 }

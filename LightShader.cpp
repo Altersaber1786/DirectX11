@@ -5,12 +5,12 @@ LightShader::LightShader()
 	PointLight light[1];
 
 	
-	light[0].position = XMFLOAT4(0.0f, 0.0f, 12.0f, 0.0f);
+	light[0].position = XMFLOAT4(1000.0f, 1000.0f, 1000.0f, 0.0f);
 	light[0].intensity = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	//light[1].position = XMFLOAT4(5.0f, 5.0f, 12.0f, 0.0f);
-	//light[1].intensity = XMFLOAT4(0.2f, 0.6f, 0.6f, 1.0f);
-	//light[2].position = XMFLOAT4(5.0f, -5.0f, 0.0f, 0.0f);
-	//light[2].intensity = XMFLOAT4(0.8f, 0.4f, 0.6f, 1.0f);
+	//light[1].position = XMFLOAT4(-1000.0f, -1000.0f, 1000.0f, 0.0f);
+	//light[1].intensity = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	//light[2].position = XMFLOAT4(1000.0f, -1000.0f, -1000.0f, 0.0f);
+	//light[2].intensity = XMFLOAT4(0.8f, 0.8f, 0.6f, 1.0f);
 	m_LightSources.pointLights.push_back(light[0]);
 	//m_LightSources.pointLights.push_back(light[1]);
 	//m_LightSources.pointLights.push_back(light[2]);
@@ -384,7 +384,7 @@ void LightShader::PreparePacking(ID3D11DeviceContext* context)
 
 	context->PSSetShader(m_gPackingPShader, 0, 0);
 	
-	context->OMSetRenderTargets(G_BUFFER_COUNT - 4, m_RenderTargetViews, m_DepthStencilView);
+	context->OMSetRenderTargets(G_BUFFER_COUNT - 4, &m_RenderTargetViews[0], m_DepthStencilView);
 	for (UINT i = 0; i < G_BUFFER_COUNT - 4; i++)
 	{
 		context->ClearRenderTargetView(m_RenderTargetViews[i], clearColor);
@@ -416,9 +416,10 @@ void LightShader::RenderDeferred(ID3D11DeviceContext* context)
 	{
 		j = j*(-1);
 		k = k + j;
+		context->OMSetRenderTargets(0, NULL, NULL);
 		context->OMSetRenderTargets(2, &m_RenderTargetViews[k], 0);
-		context->ClearRenderTargetView(m_RenderTargetViews[k], clearColor);
-		context->ClearRenderTargetView(m_RenderTargetViews[k + 1], clearColor);
+		context->ClearRenderTargetView(m_RenderTargetViews[k], clearColor2);
+		context->ClearRenderTargetView(m_RenderTargetViews[k + 1], clearColor2);
 		context->PSSetShaderResources(2, 2, &m_ShaderResourceViews[k - j]);
 		context->UpdateSubresource(m_LightProperties, 0, 0, &m_LightSources.pointLights[i], 0, 0);
 		context->PSSetConstantBuffers(0, 1, &m_LightProperties);

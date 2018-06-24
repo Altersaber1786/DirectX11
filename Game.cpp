@@ -31,7 +31,7 @@ bool Game::LoadContent()
 	Player = new GameObject();
 	Player->Initialize(XMFLOAT3(0.0f, 0.0f, 0.0f),
 		XMFLOAT3(0.0f, 0.0f, 0.0f),
-		XMFLOAT3(1.0f, 1.0f, 1.0f));
+		XMFLOAT3(0.5f, 0.5f, 0.5f));
 	Player->modelIndex = 0;
 	Player->speed = 0.01f;
 	Player2 = new GameObject();

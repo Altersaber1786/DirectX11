@@ -168,12 +168,12 @@ bool GameMaterial::CombineTexture(DirectDevice* device, TEXTURE_MAP_TYPE mapType
 			MessageBox(NULL, "Cannot create material texture 2D", NULL, 0);
 			return false;
 		}
-
-	// if (FAILED(device->swapChain_->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&tex2D_[mapType])))
-//	  {
-	//	  MessageBox(NULL, "Failed to get the swap chain back buffer!", NULL, NULL);
-	//	  return false;
-	//  };
+	   if(mapType == NORMAL_MAP)
+	 if (FAILED(device->swapChain_->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&tex2D_[mapType])))
+	  {
+		  MessageBox(NULL, "Failed to get the swap chain back buffer!", NULL, NULL);
+		  return false;
+	 };
 	D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
 	ZeroMemory(&rtvDesc, sizeof(rtvDesc));
 	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -210,9 +210,11 @@ bool GameMaterial::CombineTexture(DirectDevice* device, TEXTURE_MAP_TYPE mapType
 	device->d3dContext_->UpdateSubresource(propCB_, 0, 0, &surfaceProperties, 0, 0);
 	device->d3dContext_->PSSetConstantBuffers(0, 1, &propCB_);
 	device->d3dContext_->OMSetRenderTargets(1, &renderTargetView_[mapType], NULL);
+	device->d3dContext_->OMSetRenderTargets(1, &renderTargetView_[mapType], NULL);
 	device->d3dContext_->ClearRenderTargetView(renderTargetView_[mapType], clearColor);
 	device->d3dContext_->Draw(6, 0);
-//	device->swapChain_->Present(0 ,0);
+	if (mapType == NORMAL_MAP)
+	device->swapChain_->Present(0 ,0);
 
 	device->d3dContext_->OMSetRenderTargets(NULL, NULL, NULL);
 	shaderResourceView_[mapType]->Release();

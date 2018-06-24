@@ -31,8 +31,8 @@ HS_CONSTANT_DATA_OUTPUT ConstantsHS(InputPatch<VS_CONTROL_POINT_OUTPUT, 3> input
 	float3 center = (inputPatch[0].vWorldPos + inputPatch[1].vWorldPos + inputPatch[2].vWorldPos)/3;
 	float d = distance(center, EyePos.xyz);
 	
-	float tessellationAmount = 1.0f*saturate((d1-d)/(d1-d0));
-	
+	//float tessellationAmount = 1.0f*saturate((d1-d)/(d1-d0));
+	float tessellationAmount = 1.0f;
 	
 	HS_CONSTANT_DATA_OUTPUT Output;
 	Output.Edges[0] = tessellationAmount;

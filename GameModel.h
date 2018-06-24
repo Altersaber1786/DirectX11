@@ -2,7 +2,6 @@
 #define GAME_MODEL_H
 
 #include "DirectDevice.h"
-#include "DDSTextureLoader.h"
 #include "GameMaterial.h"
 #include "GameObject.h"
 #include <vector>

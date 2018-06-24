@@ -22,7 +22,7 @@ struct VS_OUTPUT
 VS_OUTPUT VS_Main(VS_INPUT vertex)
 {
 	VS_OUTPUT vsOut = (VS_OUTPUT)0;
-	vsOut.pos = vertex.pos;
+	vsOut.pos = vertex.pos.xyz;
 	vsOut.tex0 = vertex.tex0;
 	float4 norm = mul(vertex.norm, rotationMatrix);
 	vsOut.norm = norm.xyz;
