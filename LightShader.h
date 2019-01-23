@@ -3,7 +3,7 @@
 
 #include "DirectDevice.h"
 #include <vector>
-#include "GameMaterial.h"
+#include "TextureLoader.h"
 
 #define G_BUFFER_COUNT	9
 #define	TOTAL_LIGHT_TYPES	4;
@@ -120,7 +120,7 @@ private:
 	DirectDevice::Vertex2D					windowSquare[6];
 	LightSource					m_LightSources;
 
-	float clearColor[4] = { 0.0f, 1.0f, 0.0f, 0.0f };
+	float clearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	float clearColor2[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 };
 

@@ -9,97 +9,161 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
+    <Filter Include="Effects">
+      <UniqueIdentifier>{5b44ad2b-99a2-4496-96ef-b2062af652b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Misc">
+      <UniqueIdentifier>{e21f463d-e724-4656-8c18-8b67cc4084f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Game">
+      <UniqueIdentifier>{89fb4669-35e6-4ac2-a093-209190dcb1db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\EngineCore">
+      <UniqueIdentifier>{0ea5afb8-f092-4c8c-a09b-9aee07835029}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\EngineCore">
+      <UniqueIdentifier>{986da6d9-a618-4027-a5ee-e5c859c9ffb4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game">
+      <UniqueIdentifier>{3c98a34d-e54a-4c95-b53e-cdb82ad9b127}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\EngineCore\Functional">
+      <UniqueIdentifier>{409ad3af-ebb4-4214-8d86-93aa56199882}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\EngineCore\Direct3D">
+      <UniqueIdentifier>{ea943c1e-664d-4e3a-a65f-4171ec1cebbd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\EngineCore\Functional">
+      <UniqueIdentifier>{b31b4338-0341-418e-97d5-26ceac826cb2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\EngineCore\Direct3D">
+      <UniqueIdentifier>{068093e3-3523-45d4-858c-b392251fd599}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\EngineCore\Graphical">
+      <UniqueIdentifier>{b2885b90-4444-48f2-9f1c-2d8810149335}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\EngineCore\Graphical">
+      <UniqueIdentifier>{62685ab5-67ec-4e62-b743-131067fd6230}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="Effects">
-      <UniqueIdentifier>{5b44ad2b-99a2-4496-96ef-b2062af652b7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DirectDevice.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Game.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GameTime.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MeshLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GameObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GameMaterial.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GameModel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="LightShader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphicRenderer.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Game</Filter>
     </ClCompile>
     <ClCompile Include="GameInput.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="GameTime.cpp">
+      <Filter>Source Files\Game</Filter>
     </ClCompile>
     <ClCompile Include="GameUI.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>Source Files\Game</Filter>
     </ClCompile>
     <ClCompile Include="DDSTextureLoader.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\EngineCore\Direct3D</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectDevice.cpp">
+      <Filter>Source Files\EngineCore\Direct3D</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureLoader.cpp">
+      <Filter>Source Files\EngineCore\Functional</Filter>
+    </ClCompile>
+    <ClCompile Include="LightShader.cpp">
+      <Filter>Source Files\EngineCore\Functional</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshLoader.cpp">
+      <Filter>Source Files\EngineCore\Functional</Filter>
+    </ClCompile>
+    <ClCompile Include="3DModel.cpp">
+      <Filter>Source Files\EngineCore\Graphical</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Source Files\EngineCore\Graphical</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Source Files\EngineCore\Functional</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DDSTextureLoader.h">
+      <Filter>Header Files\EngineCore\Direct3D</Filter>
+    </ClInclude>
     <ClInclude Include="DirectDevice.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\EngineCore\Direct3D</Filter>
     </ClInclude>
-    <ClInclude Include="Game.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GameTime.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="TextureLoader.h">
+      <Filter>Header Files\EngineCore\Functional</Filter>
     </ClInclude>
     <ClInclude Include="MeshLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GameObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GameMaterial.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GameModel.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\EngineCore\Functional</Filter>
     </ClInclude>
     <ClInclude Include="LightShader.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\EngineCore\Functional</Filter>
     </ClInclude>
-    <ClInclude Include="GraphicRenderer.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>Header Files\Game</Filter>
     </ClInclude>
     <ClInclude Include="GameInput.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="GameTime.h">
+      <Filter>Header Files\Game</Filter>
     </ClInclude>
     <ClInclude Include="GameUI.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Game</Filter>
     </ClInclude>
-    <ClInclude Include="DDSTextureLoader.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Texture.h">
+      <Filter>Header Files\EngineCore\Graphical</Filter>
     </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Header Files\EngineCore\Graphical</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>Header Files\EngineCore\Functional</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shading\DeferredLighting.fx">
+      <Filter>Effects</Filter>
+    </FxCompile>
+    <FxCompile Include="Shading\FinalSquarePS.hlsl">
+      <Filter>Effects</Filter>
+    </FxCompile>
+    <FxCompile Include="Shading\TextureCombine.hlsl">
+      <Filter>Effects</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shading\PackingGBuffer.ps">
+      <Filter>Effects</Filter>
+    </None>
+    <None Include="Shading\PackingGBuffer.vs">
+      <Filter>Effects</Filter>
+    </None>
+    <None Include="Shading\tessdemo.ds">
+      <Filter>Effects</Filter>
+    </None>
+    <None Include="Shading\tessdemo.hs">
+      <Filter>Effects</Filter>
+    </None>
   </ItemGroup>
 </Project>

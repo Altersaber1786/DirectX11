@@ -204,7 +204,7 @@ int MeshLoader::getToken(std::string& buffer)
 	return TOKEN_EMPTY_LINE;
 }
 
-bool MeshLoader::LoadMeshFromOBJ(char* filename, DirectDevice* device, GameModel* model)
+bool MeshLoader::LoadMeshFromOBJ(char* filename, DirectDevice* device, Model* model)
 {
 	std::vector <XMFLOAT3> vertices;
 	std::vector <XMFLOAT3> normals;
@@ -362,7 +362,7 @@ bool MeshLoader::LoadMeshFromOBJ(char* filename, DirectDevice* device, GameModel
 		numface_total += faceGroups[z].TriFaces.size();
 	}
 	totalVetices = numface_total * 3;
-	GameModel::Vertex* m_vertices = new GameModel::Vertex[totalVetices];
+	Model::Vertex* m_vertices = new Model::Vertex[totalVetices];
 	int k = 0;
 
 	//Open the mtl file
@@ -383,7 +383,7 @@ bool MeshLoader::LoadMeshFromOBJ(char* filename, DirectDevice* device, GameModel
 		if (normals.size() == 0)normals.push_back(XMFLOAT3(0.0f, 0.0f, 0.0f));
 		Box tempBox;
 		tempBox.StartVertex = k;
-		GameMaterial* tempMat = new GameMaterial();
+		TextureLoader* tempMat = new TextureLoader();
 		tempMat->Initialize(device);
 		while (mtlStream.good())
 		{
@@ -424,7 +424,7 @@ bool MeshLoader::LoadMeshFromOBJ(char* filename, DirectDevice* device, GameModel
 							case TOKEN_MAP_KD:
 							{
 								std::string str = std::string(buffer.begin() + 7, buffer.end());
-								if (!tempMat->LoadTextureFromFileAndCombine(device, "./ModelsandTextures/"+str, GameMaterial::DIFFUSE_MAP))
+								if (!tempMat->LoadTextureFromFileAndCombine(device, "./ModelsandTextures/"+str, TextureLoader::DIFFUSE_MAP))
 								{
 									MessageBox(NULL, "Invalid texture file, make sure the file exist.", "Invalid symbol", NULL);
 									return false;
@@ -436,7 +436,7 @@ bool MeshLoader::LoadMeshFromOBJ(char* filename, DirectDevice* device, GameModel
 								std::string str = std::string(buffer.begin() + 7, buffer.end());
 								if (str.length() != 0)
 								{
-									if (!tempMat->LoadTextureFromFileAndCombine(device, "./ModelsandTextures/" + str, GameMaterial::AMBIENT_MAP))
+									if (!tempMat->LoadTextureFromFileAndCombine(device, "./ModelsandTextures/" + str, TextureLoader::AMBIENT_MAP))
 									{
 										MessageBox(NULL, "Invalid texture file, make sure the file exist.", "Invalid symbol", NULL);
 										return false;
@@ -449,7 +449,7 @@ bool MeshLoader::LoadMeshFromOBJ(char* filename, DirectDevice* device, GameModel
 								std::string str = std::string(buffer.begin() + 7, buffer.end());
 								if (str.length() != 0)
 								{
-									if (!tempMat->LoadTextureFromFileAndCombine(device, "./ModelsandTextures/" + str, GameMaterial::SPECULAR_MAP))
+									if (!tempMat->LoadTextureFromFileAndCombine(device, "./ModelsandTextures/" + str, TextureLoader::SPECULAR_MAP))
 									{
 										MessageBox(NULL, "Invalid texture file, make sure the file exist.", "Invalid symbol", NULL);
 										return false;
@@ -462,7 +462,7 @@ bool MeshLoader::LoadMeshFromOBJ(char* filename, DirectDevice* device, GameModel
 								std::string str = std::string(buffer.begin() + 5, buffer.end());
 								if (str.length() != 0)
 								{
-									if (!tempMat->LoadTextureFromFileAndCombine(device, "./ModelsandTextures/" + str, GameMaterial::NORMAL_MAP))
+									if (!tempMat->LoadTextureFromFileAndCombine(device, "./ModelsandTextures/" + str, TextureLoader::NORMAL_MAP))
 									{
 										MessageBox(NULL, "Invalid texture file, make sure the file exist.", "Invalid symbol", NULL);
 										return false;
@@ -506,7 +506,7 @@ bool MeshLoader::LoadMeshFromOBJ(char* filename, DirectDevice* device, GameModel
 	ZeroMemory(&vertexDesc, sizeof(vertexDesc));
 	vertexDesc.Usage = D3D11_USAGE_DEFAULT;
 	vertexDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertexDesc.ByteWidth = sizeof(GameModel::Vertex)*totalVetices;
+	vertexDesc.ByteWidth = sizeof(Model::Vertex)*totalVetices;
 
 	D3D11_SUBRESOURCE_DATA resourceData;
 	ZeroMemory(&resourceData, sizeof(resourceData));

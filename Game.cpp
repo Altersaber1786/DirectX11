@@ -10,7 +10,7 @@ bool Game::Initialize(HINSTANCE hInst, HWND hwnd)
 {
 	
 
-	m_Graphic = new GraphicRenderer();
+	m_Graphic = new Renderer();
 	if (!m_Graphic->Initialize(hwnd))
 		return false;
 	if(!m_Graphic->LoadModelList())
@@ -28,13 +28,13 @@ bool Game::Initialize(HINSTANCE hInst, HWND hwnd)
 
 bool Game::LoadContent()
 {
-	Player = new GameObject();
+	Player = new GameObject;
 	Player->Initialize(XMFLOAT3(0.0f, 0.0f, 0.0f),
 		XMFLOAT3(0.0f, 0.0f, 0.0f),
 		XMFLOAT3(0.5f, 0.5f, 0.5f));
 	Player->modelIndex = 0;
-	Player->speed = 0.01f;
-	Player2 = new GameObject();
+	Player->speed = 0.11f;
+	Player2 = new GameObject;
 	Player2->Initialize(XMFLOAT3(3.0f, 3.0f, 3.0f),
 		XMFLOAT3(0.0f, 0.0f, 0.0f),
 		XMFLOAT3(1.0f, 1.0f, 1.0f));
@@ -58,7 +58,7 @@ bool Game::LoadContent()
 		XMFLOAT3(10.0f, 10.0f, 10.0f));
 	Player5->modelIndex = 4;*/
 
-	cam_1 = new Camera();
+	cam_1 = new Camera;
 	cam_1->cam_mode = Camera::CAM_MODE_ARCBALL;
 
 	m_Graphic->LoadObject(Player);

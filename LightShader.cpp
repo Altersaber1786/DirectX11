@@ -25,7 +25,7 @@ bool LightShader::Initialize(DirectDevice* device)
 	ID3DBlob* hsBytecode;
 	ID3DBlob* dsBytecode;
 
-	bool compileResult = device->CompileD3DShader(L"PackingGBuffer.vs", "VS_Main", "vs_5_0", &vsBytecode);
+	bool compileResult = device->CompileD3DShader(L"./Shading/PackingGBuffer.vs", "VS_Main", "vs_5_0", &vsBytecode);
 
 	if (compileResult == false)
 	{
@@ -69,7 +69,7 @@ bool LightShader::Initialize(DirectDevice* device)
 
 	vsBytecode->Release();
 
-	compileResult = device->CompileD3DShader(L"DeferredLighting.fx", "VS_Main", "vs_5_0", &vsBytecode);
+	compileResult = device->CompileD3DShader(L"./Shading/DeferredLighting.fx", "VS_Main", "vs_5_0", &vsBytecode);
 	if (!compileResult)
 	{
 		MessageBox(NULL, "Error compiling the deferred vertex shader!", NULL, NULL);
@@ -90,7 +90,7 @@ bool LightShader::Initialize(DirectDevice* device)
 	}
 	vsBytecode->Release();
 
-	compileResult = device->CompileD3DShader(L"PackingGBuffer.ps", "PS_Main", "ps_5_0", &psBytecode);
+	compileResult = device->CompileD3DShader(L"./Shading/PackingGBuffer.ps", "PS_Main", "ps_5_0", &psBytecode);
 	if (!compileResult)
 	{
 		MessageBox(NULL, "Error compiling gbuffer pixel shader!", NULL, NULL);
@@ -104,7 +104,7 @@ bool LightShader::Initialize(DirectDevice* device)
 	}
 	psBytecode->Release();
 
-	compileResult = device->CompileD3DShader(L"DeferredLighting.fx", "PS_Main", "ps_5_0", &psBytecode);
+	compileResult = device->CompileD3DShader(L"./Shading/DeferredLighting.fx", "PS_Main", "ps_5_0", &psBytecode);
 	if (!compileResult)
 	{
 		MessageBox(NULL, "Error compiling deferred Lighting pixel shader!", NULL, NULL);
@@ -117,7 +117,7 @@ bool LightShader::Initialize(DirectDevice* device)
 		return false;
 	}
 	psBytecode->Release();
-	compileResult = device->CompileD3DShader(L"FinalSquarePS.hlsl", "main", "ps_5_0", &psBytecode);
+	compileResult = device->CompileD3DShader(L"./Shading/FinalSquarePS.hlsl", "main", "ps_5_0", &psBytecode);
 	if (!compileResult)
 	{
 		MessageBox(NULL, "Error compiling final pixel shader!", NULL, NULL);
@@ -133,7 +133,7 @@ bool LightShader::Initialize(DirectDevice* device)
 	
 	psBytecode->Release();
 
-	compileResult = device->CompileD3DShader(L"tessdemo.hs", "HS", "hs_5_0", &hsBytecode);
+	compileResult = device->CompileD3DShader(L"./Shading/tessdemo.hs", "HS", "hs_5_0", &hsBytecode);
 	if (!compileResult)
 	{
 		MessageBox(NULL, "Error compiling hull shader!", NULL, NULL);
@@ -149,7 +149,7 @@ bool LightShader::Initialize(DirectDevice* device)
 	};
 	hsBytecode->Release();
 
-	compileResult = device->CompileD3DShader(L"tessdemo.ds", "DS", "ds_5_0", &dsBytecode);
+	compileResult = device->CompileD3DShader(L"./Shading/tessdemo.ds", "DS", "ds_5_0", &dsBytecode);
 	if (!compileResult)
 	{
 		MessageBox(NULL, "Error compiling domain shader!", NULL, NULL);

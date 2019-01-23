@@ -2,7 +2,7 @@
 #define MESH_LOADER
 
 #include "DirectDevice.h"
-#include "GameModel.h"
+#include "Model.h"
 #include <iostream>
 #define TOKEN_INVALID 0
 #define TOKEN_V		 1
@@ -64,7 +64,7 @@ public:
 	}FaceGroup;
 	MeshLoader();
 	~MeshLoader();
-	bool LoadMeshFromOBJ(char* filename, DirectDevice* device, GameModel* model);
+	bool LoadMeshFromOBJ(char* filename, DirectDevice* device, Model* model);
 	
 
 private:

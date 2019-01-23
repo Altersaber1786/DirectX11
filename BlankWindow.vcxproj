@@ -142,11 +142,12 @@
     <ClCompile Include="DirectDevice.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameInput.cpp" />
-    <ClCompile Include="GameMaterial.cpp" />
-    <ClCompile Include="GameModel.cpp" />
+    <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="TextureLoader.cpp" />
+    <ClCompile Include="3DModel.cpp" />
     <ClCompile Include="GameTime.cpp" />
     <ClCompile Include="GameUI.cpp" />
-    <ClCompile Include="GraphicRenderer.cpp" />
+    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="LightShader.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MeshLoader.cpp" />
@@ -158,14 +159,40 @@
     <ClInclude Include="DirectDevice.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameInput.h" />
-    <ClInclude Include="GameMaterial.h" />
-    <ClInclude Include="GameModel.h" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="TextureLoader.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="GameTime.h" />
     <ClInclude Include="GameUI.h" />
-    <ClInclude Include="GraphicRenderer.h" />
+    <ClInclude Include="Renderer.h" />
     <ClInclude Include="LightShader.h" />
     <ClInclude Include="MeshLoader.h" />
     <ClInclude Include="GameObject.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shading\DeferredLighting.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shading\FinalSquarePS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shading\TextureCombine.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shading\PackingGBuffer.ps">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </None>
+    <None Include="Shading\PackingGBuffer.vs">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </None>
+    <None Include="Shading\tessdemo.ds">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </None>
+    <None Include="Shading\tessdemo.hs">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

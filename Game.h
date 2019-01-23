@@ -4,7 +4,7 @@
 
 #include "GameObject.h"
 #include "Camera.h"
-#include "GraphicRenderer.h"
+#include "Renderer.h"
 #include "GameInput.h"
 #include <vector>
 #include "GameTime.h"
@@ -17,7 +17,7 @@ public:
 	void Render();
 	Game();
 	~Game();
-	GraphicRenderer* m_Graphic;
+	Renderer* m_Graphic;
 
 protected:
 	GameObject*		Player;
